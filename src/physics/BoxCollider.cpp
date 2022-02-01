@@ -52,34 +52,6 @@ namespace physics
 		return *this;
 	}
 
-	bool BoxCollider::operator==(const Collider& other) const noexcept
-	{
-		BoxCollider b;
-		try
-		{
-			b = dynamic_cast<const BoxCollider&>(other);
-		}
-		catch (const std::bad_cast& e)
-		{
-			return false;
-		}
-		return b.pos == pos && b.dimensions == dimensions;
-	}
-
-	bool BoxCollider::operator!=(const Collider& other) const noexcept
-	{
-		BoxCollider b;
-		try
-		{
-			b = dynamic_cast<const BoxCollider&>(other);
-		}
-		catch (const std::bad_cast& e)
-		{
-			return true;
-		}
-		return b.pos != pos || b.dimensions != dimensions;
-	}
-
 	std::vector<unsigned char> BoxCollider::Serialize() const
 	{
 		return std::vector<unsigned char>();

@@ -230,11 +230,11 @@ namespace physics::serialization
 		}
 	}
 
-	namespace DynamicCollider
+	namespace PolygonCollider
 	{
 		Serializable* Deserialize(std::vector<unsigned char> bytes)
 		{
-			physics::DynamicCollider* d = new physics::DynamicCollider();
+			physics::PolygonCollider* d = new physics::PolygonCollider();
 			if (BIG_ENDIAN)
 			{
 				auto iter = bytes.begin();
@@ -318,7 +318,7 @@ namespace physics::serialization
 			return d;
 		}
 
-		std::vector<unsigned char> Serialize(const physics::DynamicCollider& d)
+		std::vector<unsigned char> Serialize(const physics::PolygonCollider& d)
 		{
 			std::vector<unsigned char> v;
 			if (BIG_ENDIAN)
@@ -393,7 +393,7 @@ namespace physics::serialization
 			}
 			return v;
 		}
-		unsigned long TotalByteSize(const physics::DynamicCollider& d)
+		unsigned long TotalByteSize(const physics::PolygonCollider& d)
 		{
 			return (sizeof(f64) * 2) + (d.points.size() * sizeof(f64)) + 4;
 		}

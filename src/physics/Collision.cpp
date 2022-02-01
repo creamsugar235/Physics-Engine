@@ -21,10 +21,10 @@ namespace physics
 	}
 
 	CollisionPoints CircleCollider::TestCollision(const Transform& transform,
-		const DynamicCollider* collider,
+		const PolygonCollider* collider,
 		const Transform& colliderTransform) const noexcept
 	{
-		return algo::FindDynamicCircleCollisionPoints(collider, colliderTransform, this, transform);
+		return algo::FindPolygonCircleCollisionPoints(collider, colliderTransform, this, transform);
 	}
 
 	CollisionPoints CircleCollider::TestCollision(const Transform &transform,
@@ -41,39 +41,39 @@ namespace physics
 		return algo::FindCircleMeshCollisionPoints(this, transform, collider, colliderTransform);
 	}
 
-	CollisionPoints DynamicCollider::TestCollision(const Transform& transform,
+	CollisionPoints PolygonCollider::TestCollision(const Transform& transform,
 		const Collider* collider,
 		const Transform& colliderTransform) const noexcept
 	{
 		return collider->TestCollision(colliderTransform, this, transform);
 	}
 
-	CollisionPoints DynamicCollider::TestCollision(const Transform& transform,
+	CollisionPoints PolygonCollider::TestCollision(const Transform& transform,
 		const CircleCollider* collider,
 		const Transform& colliderTransform) const noexcept
 	{
-		return algo::FindDynamicCircleCollisionPoints(this, transform, collider, colliderTransform);
+		return algo::FindPolygonCircleCollisionPoints(this, transform, collider, colliderTransform);
 	}
 
-	CollisionPoints DynamicCollider::TestCollision(const Transform& transform,
-		const DynamicCollider* collider,
+	CollisionPoints PolygonCollider::TestCollision(const Transform& transform,
+		const PolygonCollider* collider,
 		const Transform& colliderTransform) const noexcept
 	{
-		return algo::FindDynamicDynamicCollisionPoints(this, transform, collider, colliderTransform);
+		return algo::FindPolygonPolygonCollisionPoints(this, transform, collider, colliderTransform);
 	}
 
-	CollisionPoints DynamicCollider::TestCollision(const Transform& transform,
+	CollisionPoints PolygonCollider::TestCollision(const Transform& transform,
 		const BoxCollider* collider,
 		const Transform& colliderTransform) const noexcept
 	{
-		return algo::FindDynamicBoxCollisionPoints(this, transform, collider, colliderTransform);
+		return algo::FindPolygonBoxCollisionPoints(this, transform, collider, colliderTransform);
 	}
 
-	CollisionPoints DynamicCollider::TestCollision(const Transform& transform,
+	CollisionPoints PolygonCollider::TestCollision(const Transform& transform,
 		const MeshCollider* collider,
 		const Transform& colliderTransform) const noexcept
 	{
-		return algo::FindDynamicMeshCollisionPoints(this, transform, collider, colliderTransform);
+		return algo::FindPolygonMeshCollisionPoints(this, transform, collider, colliderTransform);
 	}
 
 	CollisionPoints BoxCollider::TestCollision(const Transform& transform,
@@ -91,10 +91,10 @@ namespace physics
 	}
 
 	CollisionPoints BoxCollider::TestCollision(const Transform& transform,
-		const DynamicCollider* collider,
+		const PolygonCollider* collider,
 		const Transform& colliderTransform) const noexcept
 	{
-		return algo::FindDynamicBoxCollisionPoints(collider, colliderTransform, this, transform);
+		return algo::FindPolygonBoxCollisionPoints(collider, colliderTransform, this, transform);
 	}
 
 	CollisionPoints BoxCollider::TestCollision(const Transform& transform,
@@ -127,10 +127,10 @@ namespace physics
 	}
 
 	CollisionPoints MeshCollider::TestCollision(const Transform& transform,
-		const DynamicCollider* collider,
+		const PolygonCollider* collider,
 		const Transform& colliderTransform) const noexcept
 	{
-		return algo::FindDynamicMeshCollisionPoints(collider, colliderTransform, this, transform);
+		return algo::FindPolygonMeshCollisionPoints(collider, colliderTransform, this, transform);
 	}
 
 	CollisionPoints MeshCollider::TestCollision(const Transform& transform,

@@ -10,7 +10,7 @@ namespace physics
 	std::ostream& operator<<(std::ostream& os, const geometry::Vector& v);
 	std::ostream& operator<<(std::ostream& os, const geometry::Line& l);
 	std::ostream& operator<<(std::ostream& os, const Transform& t);
-	std::ostream& operator<<(std::ostream& os, const DynamicCollider& d);
+	std::ostream& operator<<(std::ostream& os, const PolygonCollider& p);
 	std::ostream& operator<<(std::ostream& os, const geometry::Mat22& m);
 	std::ostream& operator<<(std::ostream& os, const CollisionPoints& c);
 	template <typename T>

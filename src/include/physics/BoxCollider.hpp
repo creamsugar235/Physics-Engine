@@ -18,8 +18,6 @@ namespace physics
 		BoxCollider(const BoxCollider& b) noexcept;
 		~BoxCollider() noexcept;
 		BoxCollider& operator=(const BoxCollider& b);
-		virtual bool operator==(const Collider& other) const noexcept override;
-		virtual bool operator!=(const Collider& other) const noexcept override;
 		Collider* Clone() const noexcept override;
 		virtual CollisionPoints TestCollision(
 			const Transform& transform,
@@ -31,7 +29,7 @@ namespace physics
 			const Transform& colliderTransform) const noexcept override;
 		virtual CollisionPoints TestCollision(
 			const Transform& transform,
-			const DynamicCollider* collider,
+			const PolygonCollider* collider,
 			const Transform& colliderTransform) const noexcept override;
 		virtual CollisionPoints TestCollision(
 			const Transform& transform,

@@ -12,8 +12,6 @@ namespace physics
 		CircleCollider(geometry::Vector center, f64 radius) noexcept;
 		CircleCollider(const CircleCollider& c) noexcept;
 		~CircleCollider() noexcept;
-		virtual bool operator==(const Collider& other) const noexcept override;
-		virtual bool operator!=(const Collider& other) const noexcept override;
 		Collider* Clone() const override;
 		virtual CollisionPoints TestCollision(
 			const Transform& transform,
@@ -25,7 +23,7 @@ namespace physics
 			const Transform& colliderTransform) const noexcept override;
 		virtual CollisionPoints TestCollision(
 			const Transform& transform,
-			const DynamicCollider* collider,
+			const PolygonCollider* collider,
 			const Transform& colliderTransform) const noexcept override;
 		virtual CollisionPoints TestCollision(
 			const Transform& transform,

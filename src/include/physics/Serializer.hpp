@@ -3,7 +3,7 @@
 #include "Rigidbody.hpp"
 #include "BoxCollider.hpp"
 #include "CircleCollider.hpp"
-#include "DynamicCollider.hpp"
+#include "PolygonCollider.hpp"
 #include "MeshCollider.hpp"
 #include "Entity.hpp"
 #include "Serializable.hpp"
@@ -35,11 +35,11 @@ namespace physics
 			unsigned long TotalByteSize();
 		}
 
-		namespace DynamicCollider
+		namespace PolygonCollider
 		{
 			Serializable* Deserialize(std::vector<unsigned char> bytes);
-			std::vector<unsigned char> Serialize(const physics::DynamicCollider& d);
-			unsigned long TotalByteSize(const physics::DynamicCollider& d);
+			std::vector<unsigned char> Serialize(const physics::PolygonCollider& d);
+			unsigned long TotalByteSize(const physics::PolygonCollider& d);
 			unsigned long MinimumByteSize();
 		}
 

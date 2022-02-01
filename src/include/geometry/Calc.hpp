@@ -16,6 +16,7 @@ namespace geometry
 			static f64 Degrees(f64 angle);
 			static f64 Diagonal(f64 width, f64 height);
 			static f64 Distance(const Vector& a, const Vector& b);
+			static f64 DistanceSquared(const Vector& a, const Vector& b);
 			static f64 Distance(const Line& a, const Vector& b);
 			static f64 GetAngle(const Vector& a, const Vector& b, const Vector& c);
 			static f64 GetAngle(f64 slope);

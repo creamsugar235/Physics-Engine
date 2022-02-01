@@ -33,6 +33,7 @@ namespace geometry
 			std::string ToString() const;
 			std::tuple<std::tuple<f64, f64>, std::tuple<f64, f64>> ToTuple() const;
 			void Rotate(const Vector& pivot, f64 angle);
+			bool VectorIsOnLine(const Vector& v) const;
 			void Update();
 	};
 }

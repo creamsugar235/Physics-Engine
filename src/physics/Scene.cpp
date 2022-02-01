@@ -116,11 +116,21 @@ namespace physics
 				_world.Update(_physicsUpdateCounter.total + dt);
 				_world.ResolveCollisions(_physicsUpdateCounter.total + dt);
 				_physicsUpdateCounter.total = 0;
+				for (auto& ptr: _entities)
+				{
+					ptr->FixedUpdate();
+					ptr->Update();
+				}
 			}
 			else
 			{
 				_physicsUpdateCounter.total += dt;
 			}
+		}
+		else
+		{
+			for (auto& ptr: _entities)
+				ptr->Update();
 		}
 	}
 }

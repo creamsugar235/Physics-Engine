@@ -28,34 +28,6 @@ namespace physics
 		return new CircleCollider(*this);
 	}
 
-	bool CircleCollider::operator==(const Collider& other) const noexcept
-	{
-		CircleCollider tmp = CircleCollider(geometry::Vector(0, 0), 0);
-		try
-		{
-			CircleCollider tmp = dynamic_cast<const CircleCollider&>(other);
-		}
-		catch(const std::bad_cast	& c)
-		{
-			return false;
-		}
-		return tmp.radius == radius && tmp.center == center;
-	}
-
-	bool CircleCollider::operator!=(const Collider& other) const noexcept
-	{
-		CircleCollider tmp = CircleCollider(geometry::Vector(0, 0), 0);
-		try
-		{
-			CircleCollider tmp = dynamic_cast<const CircleCollider&>(other);
-		}
-		catch(const std::bad_cast& c)
-		{
-			return true;
-		}
-		return tmp.radius != radius || tmp.center != center;
-	}
-
 	std::vector<unsigned char> CircleCollider::Serialize() const
 	{
 		std::vector<unsigned char> v;

@@ -238,12 +238,9 @@ namespace geometry
 
 	Vector Vector::Projection(const Vector& vector, const Line& target) noexcept
 	{
-		Vector e1(target.b.x - target.a.x, target.b.y - target.a.y);
-		Vector e2(vector.x - target.a.x, vector.y - target.a.y);
-		f64 dot = e1.Dot(e2);
-		f64 len = e1.magnitudeSquared();
-		return Vector(target.a.x + (dot * e1.x) / len,
-			target.a.y + (dot * e1.y) / len);
+		Vector AV = vector - target.a;
+		Vector AB = target.b - target.a;
+		return target.a + AV.Dot(AB) / AB.Dot(AB) * AB;
 	}
 
 	int Vector::Quadrant(const Vector& p) const noexcept

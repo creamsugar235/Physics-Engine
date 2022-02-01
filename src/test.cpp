@@ -4,7 +4,7 @@ using namespace geometry;
 bool test::TestCollisionChecking()
 {
 	{
-		DynamicCollider d(Vector(0, 0), Vector(0, 0), Vector(10, 0), Vector(10, 10), {Vector(0, 10)});
+		PolygonCollider d(Vector(0, 0), Vector(0, 0), Vector(10, 0), Vector(10, 10), {Vector(0, 10)});
 		Transform t1;
 		t1.position = Vector(0, 0);
 		CircleCollider c(Vector(0, 0), 10);
@@ -67,10 +67,10 @@ bool test::TestCollisionChecking()
 	}
 	{
 		
-		DynamicCollider d1(Vector(0, 0), Vector(0, 0), Vector(10, 0), Vector(5, 10));
+		PolygonCollider d1(Vector(0, 0), Vector(0, 0), Vector(10, 0), Vector(5, 10));
 		Transform t1;
 		t1.position = Vector(0, 0);
-		DynamicCollider d2(Vector(0, 0), Vector(0, 0), Vector(10, 0), Vector(10, 10), {Vector(0, 10)});
+		PolygonCollider d2(Vector(0, 0), Vector(0, 0), Vector(10, 0), Vector(10, 10), {Vector(0, 10)});
 		Transform t2;
 		t2.position = Vector(0, 0);
 		if (!d1.TestCollision(t1, &d2, t2).hasCollision || !d2.TestCollision(t2, &d1, t1).hasCollision)
@@ -101,12 +101,12 @@ bool test::TestColliders()
 		std::cerr<<"CircleCollider Cloning has falied\n";
 		return false;
 	}
-	DynamicCollider d1(Vector(10, 10), Vector(10, -10), Vector(10, 10), Vector(10, 10));
-	DynamicCollider* d2 = (DynamicCollider*)d1.Clone();
+	PolygonCollider d1(Vector(10, 10), Vector(10, -10), Vector(10, 10), Vector(10, 10));
+	PolygonCollider* d2 = (PolygonCollider*)d1.Clone();
 	bool b = false;
 	if (!(d1.pos == d2->pos && d1.points == d2->points))
 	{
-		std::cerr<<"DynamicCollider Cloning has falied\n";
+		std::cerr<<"PolygonCollider Cloning has falied\n";
 		return false;
 	}
 	delete d2;
@@ -118,7 +118,7 @@ bool test::TestCollisionObject()
 {
 	Transform t;
 	t.position = Vector(5000, 5000);
-	DynamicCollider d(Vector(5000, 5000), Vector(0, 0), Vector(10, 10), Vector(5, 10));
+	PolygonCollider d(Vector(5000, 5000), Vector(0, 0), Vector(10, 10), Vector(5, 10));
 	CollisionObject object(t, d, false);
 	if (object.IsTrigger())
 	{
@@ -128,7 +128,7 @@ bool test::TestCollisionObject()
 	{
 		std::cerr<<"IsDynamic() failed, returned true\n";
 	}
-	DynamicCollider d2 = (DynamicCollider&)object.GetCollider();
+	PolygonCollider d2 = (PolygonCollider&)object.GetCollider();
 	if (!(d.pos == d2.pos && d.points == d2.points))
 	{
 		std::cerr<<"CollisionObject GetCollider() Function failed returned invalid collider\n";
@@ -150,7 +150,7 @@ bool test::TestCollisionObject()
 
 bool test::TestRigidbody()
 {
-	//Rigidbody r(Transform(), DynamicCollider(Vector(0, 0), Vector(1, 1), Vector(2, 2), Vector(3, 3)), false, false);
+	//Rigidbody r(Transform(), PolygonCollider(Vector(0, 0), Vector(1, 1), Vector(2, 2), Vector(3, 3)), false, false);
 	
 	return true;
 }

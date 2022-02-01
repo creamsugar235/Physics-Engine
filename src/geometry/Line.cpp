@@ -83,9 +83,16 @@ namespace geometry
 		this->b.Rotate(pivot, angle);
 		Update();
 	}
+
 	void Line::Update()
 	{
 		this->_length = Calc::Distance(this->a, this->b);
 		this->_angle = Calc::GetAngle(this->a, this->b);
+	}
+
+	bool Line::VectorIsOnLine(const Vector& v) const
+	{
+		return Calc::Distance(a, v) + Calc::Distance(b, v) ==
+			length();
 	}
 }

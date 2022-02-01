@@ -39,16 +39,6 @@ namespace physics
 		return *this;
 	}
 
-	bool CollisionObject::operator==(const CollisionObject& other) const noexcept
-	{
-		return _transform == other.GetTransform() && *_collider == other.GetCollider();
-	}
-
-	bool CollisionObject::operator!=(const CollisionObject& other) const noexcept
-	{
-		return _transform != other.GetTransform() || *_collider != other.GetCollider();
-	}
-
 	CollisionObject* CollisionObject::Clone() const noexcept
 	{
 		return new CollisionObject(*this);
@@ -56,6 +46,27 @@ namespace physics
 
 	CollisionObject::~CollisionObject() noexcept
 	{
+	}
+
+	bool CollisionObject::Equals(const Hashable& other) const noexcept
+	{
+		CollisionObject c;
+		try
+		{
+			c = dynamic_cast<const CollisionObject&>(other);
+		}
+		catch(const std::bad_cast& e)
+		{
+			return false;
+		}
+		// so no segfault happens
+		if (_collider)
+		{
+			return _transform == c.GetTransform() && _lastTransform == c.GetLastTransform() &&
+				*_collider == c.GetCollider() && _isTrigger == c.IsTrigger();
+		}
+		return _transform == c.GetTransform() && _lastTransform == c.GetLastTransform() &&
+			_isTrigger == c.IsTrigger();
 	}
 
 	bool CollisionObject::IsTrigger() const noexcept
@@ -108,6 +119,27 @@ namespace physics
 	const Transform& CollisionObject::GetLastTransform() const noexcept
 	{
 		return _lastTransform;
+	}
+
+	bool CollisionObject::NotEquals(const Hashable& other) const noexcept
+	{
+		CollisionObject c;
+		try
+		{
+			c = dynamic_cast<const CollisionObject&>(other);
+		}
+		catch(const std::bad_cast& e)
+		{
+			return true;
+		}
+		// so no segfault happens
+		if (_collider)
+		{
+			return _transform != c.GetTransform() || _lastTransform != c.GetLastTransform() ||
+				*_collider != c.GetCollider() || _isTrigger == c.IsTrigger();
+		}
+		return _transform != c.GetTransform() || _lastTransform != c.GetLastTransform() ||
+			_isTrigger != c.IsTrigger();
 	}
 
 	void CollisionObject::SetCollider(Collider& c) noexcept

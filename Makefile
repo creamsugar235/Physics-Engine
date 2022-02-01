@@ -31,10 +31,11 @@ compilePhysics:
 	g++ -c -Wall -std=c++17 src/physics/Collider.cpp -o bin/o/Collider.o
 	g++ -c -Wall -std=c++17 src/physics/CollisionObject.cpp -o bin/o/CollisionObject.o
 	g++ -c -Wall -std=c++17 src/physics/Display.cpp -o bin/o/Display.o
-	g++ -c -Wall -std=c++17 src/physics/DynamicCollider.cpp -o bin/o/DynamicCollider.o
 	g++ -c -Wall -std=c++17 src/physics/Entity.cpp -o bin/o/Entity.o
+	g++ -c -Wall -std=c++17 src/physics/Hashable.cpp -o bin/o/Hashable.o
 	g++ -c -Wall -std=c++17 src/physics/MeshCollider.cpp -o bin/o/MeshCollider.o
 	g++ -c -Wall -std=c++17 src/physics/OstreamOverloads.cpp -o bin/o/OstreamOverloads.o
+	g++ -c -Wall -std=c++17 src/physics/PolygonCollider.cpp -o bin/o/PolygonCollider.o
 	g++ -c -Wall -std=c++17 src/physics/Rigidbody.cpp -o bin/o/Rigidbody.o
 	g++ -c -Wall -std=c++17 src/physics/Scene.cpp -o bin/o/Scene.o
 	g++ -c -Wall -std=c++17 src/physics/Time.cpp -o bin/o/Time.o
@@ -51,10 +52,11 @@ debugCompilePhysics:
 	g++ -g -rdynamic -c -Wall -std=c++17 src/physics/Collider.cpp -o bin/o/Collider.o
 	g++ -g -rdynamic -c -Wall -std=c++17 src/physics/CollisionObject.cpp -o bin/o/CollisionObject.o
 	g++ -g -rdynamic -c -Wall -std=c++17 src/physics/Display.cpp -o bin/o/Display.o
-	g++ -g -rdynamic -c -Wall -std=c++17 src/physics/DynamicCollider.cpp -o bin/o/DynamicCollider.o
 	g++ -g -rdynamic -c -Wall -std=c++17 src/physics/Entity.cpp -o bin/o/Entity.o
+	g++ -g -rdynamic -c -Wall -std=c++17 src/physics/Hashable.cpp -o bin/o/Hashable.o
 	g++ -g -rdynamic -c -Wall -std=c++17 src/physics/MeshCollider.cpp -o bin/o/MeshCollider.o
 	g++ -g -rdynamic -c -Wall -std=c++17 src/physics/OstreamOverloads.cpp -o bin/o/OstreamOverloads.o
+	g++ -g -rdynamic -c -Wall -std=c++17 src/physics/PolygonCollider.cpp -o bin/o/PolygonCollider.o
 	g++ -g -rdynamic -c -Wall -std=c++17 src/physics/Rigidbody.cpp -o bin/o/Rigidbody.o
 	g++ -g -rdynamic -c -Wall -std=c++17 src/physics/Scene.cpp -o bin/o/Scene.o
 	g++ -g -rdynamic -c -Wall -std=c++17 src/test.cpp -o bin/o/Test.o

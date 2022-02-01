@@ -24,9 +24,9 @@ namespace physics
 		return os << "{" << m.m01 << ", " << m.m01 << ", " << m.m10 << ", " << m.m11 << "}";
 	}
 
-	std::ostream& operator<<(std::ostream& os, const DynamicCollider& d)
+	std::ostream& operator<<(std::ostream& os, const PolygonCollider& p)
 	{
-		return os << d.points;
+		return os << p.points;
 	}
 
 	std::ostream& operator<<(std::ostream& os, const CollisionPoints& c)

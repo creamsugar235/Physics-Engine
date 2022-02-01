@@ -137,9 +137,9 @@ namespace physics
 					BoundingBoxA.width = radius * 2;
 					BoundingBoxA.height = radius * 2;
 				}
-				else if (dynamic_cast<DynamicCollider*>(clone))
+				else if (dynamic_cast<PolygonCollider*>(clone))
 				{
-					DynamicCollider& dc = dynamic_cast<DynamicCollider&>(a->GetCollider());
+					PolygonCollider& dc = dynamic_cast<PolygonCollider&>(a->GetCollider());
 					geometry::Vector minimum = getMin(dc.points);
 					geometry::Vector maximum = getMax(dc.points);
 					BoundingBoxA.x = minimum.x + a->GetTransform().position.x;
@@ -177,9 +177,9 @@ namespace physics
 					BoundingBoxB.width = radius * 2;
 					BoundingBoxB.height = radius * 2;
 				}
-				else if (dynamic_cast<DynamicCollider*>(clone))
+				else if (dynamic_cast<PolygonCollider*>(clone))
 				{
-					DynamicCollider& dc = dynamic_cast<DynamicCollider&>(b->GetCollider());
+					PolygonCollider& dc = dynamic_cast<PolygonCollider&>(b->GetCollider());
 					geometry::Vector minimum = getMin(dc.points);
 					geometry::Vector maximum = getMax(dc.points);
 					BoundingBoxB.x = minimum.x + b->GetTransform().position.x;

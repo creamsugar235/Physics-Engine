@@ -2,18 +2,18 @@
 using namespace physics;
 namespace algo
 {
-	CollisionPoints FindDynamicCircleCollisionPoints(
-		const DynamicCollider* a, const Transform& ta,
+	CollisionPoints FindPolygonCircleCollisionPoints(
+		const PolygonCollider* a, const Transform& ta,
 		const CircleCollider* b, const Transform& tb
 	);
 
-	CollisionPoints FindDynamicBoxCollisionPoints(
-		const DynamicCollider* a, const Transform& ta,
+	CollisionPoints FindPolygonBoxCollisionPoints(
+		const PolygonCollider* a, const Transform& ta,
 		const BoxCollider* b, const Transform& tb
 	);
 
-	CollisionPoints FindDynamicMeshCollisionPoints(
-		const DynamicCollider* a, const Transform& ta,
+	CollisionPoints FindPolygonMeshCollisionPoints(
+		const PolygonCollider* a, const Transform& ta,
 		const MeshCollider* b, const Transform& tb
 	);
 
@@ -37,9 +37,9 @@ namespace algo
 		const MeshCollider* b, const Transform& tb
 	);
 
-	CollisionPoints FindDynamicDynamicCollisionPoints(
-		const DynamicCollider* a, const Transform& ta,
-		const DynamicCollider* b, const Transform& tb
+	CollisionPoints FindPolygonPolygonCollisionPoints(
+		const PolygonCollider* a, const Transform& ta,
+		const PolygonCollider* b, const Transform& tb
 	);
 
 	CollisionPoints FindBoxBoxCollisionPoints(
@@ -52,13 +52,28 @@ namespace algo
 		const MeshCollider* b, const Transform& tb
 	);
 
-	bool DynamicColliderVectorIsColliding(
-		const DynamicCollider* a, const Transform& ta,
+	bool PolygonColliderVectorIsColliding(
+		const PolygonCollider* a, const Transform& ta,
 		const geometry::Vector& b
 	);
 
 	bool LinePassesThroughCircle(
 		const geometry::Line& a, const CircleCollider* b,
 		const Transform& tb
+	);
+
+	bool CircleInsideCircle(
+		const CircleCollider* a, const Transform& ta,
+		const CircleCollider* b, const Transform& tb
+	);
+
+	CollisionPoints CircleInsidePolygon(
+		const PolygonCollider* a, const Transform& ta,
+		const CircleCollider* b, const Transform& tb
+	);
+
+	CollisionPoints PolygonInsidePolygon(
+		const PolygonCollider* a, const Transform& ta,
+		const PolygonCollider* b, const Transform& tb
 	);
 }

@@ -11,8 +11,6 @@ namespace physics
 		MeshCollider(const std::vector<Collider*>& colliders) noexcept;
 		MeshCollider(const MeshCollider& m) noexcept;
 		~MeshCollider() noexcept;
-		bool operator==(const Collider& other) const noexcept override;
-		bool operator!=(const Collider& other) const noexcept override;
 		Collider* Clone() const override;
 		virtual CollisionPoints TestCollision(
 			const Transform& transform,
@@ -24,7 +22,7 @@ namespace physics
 			const Transform& colliderTransform) const noexcept override;
 		virtual CollisionPoints TestCollision(
 			const Transform& transform,
-			const DynamicCollider* collider,
+			const PolygonCollider* collider,
 			const Transform& colliderTransform) const noexcept override;
 		virtual CollisionPoints TestCollision(
 			const Transform& transform,

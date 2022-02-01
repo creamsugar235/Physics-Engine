@@ -31,18 +31,6 @@ namespace physics
 		_transform = e.GetTransform();
 	}
 
-	bool Entity::operator==(const Entity& other) const noexcept
-	{
-		return _name == other.GetName() && *_collider == other.GetCollisionObject() &&
-		_transform == other.GetTransform();
-	}
-
-	bool Entity::operator!=(const Entity& other) const noexcept
-	{
-		return _name != other.GetName() || *_collider != other.GetCollisionObject() ||
-		_transform != other.GetTransform();
-	}
-
 	Entity::~Entity()
 	{
 		delete _collider;
@@ -51,6 +39,21 @@ namespace physics
 	Entity* Entity::Clone() const noexcept
 	{
 		return new Entity(*this);
+	}
+
+	bool Entity::Equals(const Hashable& other) const noexcept
+	{
+		Entity e(*this);
+		try
+		{
+			e = dynamic_cast<const Entity&>(other);
+		}
+		catch(const std::bad_cast& e)
+		{
+			return false;
+		}
+		return _name == e.GetName() && *_collider == e.GetCollisionObject() &&
+			_transform == e.GetTransform();
 	}
 
 	CollisionObject& Entity::GetCollisionObject() const noexcept
@@ -122,6 +125,16 @@ namespace physics
 		//Collider* c = cClass.Deserialize();
 		return e;
 	}
+
+	void Entity::FixedUpdate() noexcept
+	{
+	}
+
+	bool Entity::NotEquals(const Hashable& other) const noexcept
+	{
+		return !Equals(other);
+	}
+
 	const unsigned long Entity::TotalByteSize() const noexcept
 	{
 		return 0ul;

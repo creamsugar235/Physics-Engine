@@ -1,5 +1,6 @@
 #pragma once
 #include "../geometry/main.hpp"
+#include "Hashable.hpp"
 #include "Serializable.hpp"
 namespace physics
 {
@@ -8,7 +9,7 @@ namespace physics
 	struct BoxCollider;
 	struct Collider;
 	struct CircleCollider;
-	struct DynamicCollider;
+	struct PolygonCollider;
 	struct MeshCollider;
 	struct CollisionPoints;
 
@@ -30,7 +31,7 @@ namespace physics
 		}
 	};
 
-	struct Transform : public serialization::Serializable
+	struct Transform : public serialization::Serializable, public Hashable
 	{
 		geometry::Vector position = geometry::Vector(0, 0);
 		geometry::Vector scale = geometry::Vector(1, 1);
@@ -54,12 +55,10 @@ namespace physics
 		serialization::Serializable* Deserialize(std::vector<byte> v) const override;
 	};
 
-	struct Collider : public serialization::Serializable
+	struct Collider : public serialization::Serializable, public Hashable
 	{
 		virtual Collider* Clone() const = 0;
 		virtual ~Collider() noexcept;
-		virtual bool operator==(const Collider& other) const noexcept = 0;
-		virtual bool operator!=(const Collider& other) const noexcept = 0;
 		virtual CollisionPoints TestCollision(
 			const Transform& transform,
 			const Collider* collider,
@@ -70,7 +69,7 @@ namespace physics
 			const Transform& colliderTransform) const noexcept = 0;
 		virtual CollisionPoints TestCollision(
 			const Transform& transform,
-			const DynamicCollider* collider,
+			const PolygonCollider* collider,
 			const Transform& colliderTransform) const noexcept = 0;
 		virtual CollisionPoints TestCollision(
 			const Transform& transform,

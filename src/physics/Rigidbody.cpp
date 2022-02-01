@@ -44,34 +44,6 @@ namespace physics
 		return *this;
 	}
 
-	bool Rigidbody::operator==(const CollisionObject& other) const noexcept
-	{
-		Rigidbody tmp;
-		try
-		{
-			tmp = dynamic_cast<const Rigidbody&>(other);
-		}
-		catch (std::bad_alloc& c)
-		{
-			return false;
-		}
-		return GetHash() == tmp.GetHash();
-	}
-
-	bool Rigidbody::operator!=(const CollisionObject& other) const noexcept
-	{
-		Rigidbody tmp;
-		try
-		{
-			tmp = dynamic_cast<const Rigidbody&>(other);
-		}
-		catch (std::bad_alloc& c)
-		{
-			return true;
-		}
-		return GetHash() != other.GetHash();
-	}
-
 	void Rigidbody::ApplyForce(geometry::Vector f) noexcept
 	{
 		_velocity += f;
@@ -80,6 +52,25 @@ namespace physics
 	CollisionObject* Rigidbody::Clone() const noexcept
 	{
 		return new Rigidbody(*this);
+	}
+
+	bool Rigidbody::Equals(const Hashable& other) const noexcept
+	{
+		Rigidbody r;
+		try
+		{
+			r = dynamic_cast<const Rigidbody&>(other);
+		}
+		catch(const std::bad_cast& e)
+		{
+			return false;
+		}
+		return _mass == r.GetMass() && _usesGravity == r.UsesGravity() &&
+			_staticFriction == r.GetStaticFriction() &&
+			_dynamicFriction == r.GetDynamicFriction() &&
+			_restitution == r.GetRestitution() && _gravity == r.GetGravity() &&
+			_velocity == r.GetVelocity() && _drag == r.GetDrag() &&
+			CollisionObject::Equals((const CollisionObject&) r);
 	}
 
 	geometry::Vector Rigidbody::GetDrag() const noexcept
@@ -102,20 +93,6 @@ namespace physics
 		return _gravity;
 	}
 
-	int Rigidbody::GetHash() const noexcept
-	{
-		std::string s = _transform.position.ToString() + _transform.scale.ToString();
-		s = s + std::to_string(_isDynamic) + std::to_string(_isTrigger);
-		s = s + _force.ToString() + _gravity.ToString() + std::to_string(_dynamicFriction) +
-		std::to_string(_staticFriction) + std::to_string(_restitution);
-		int h = 0;
-		for (size_t i = 0; i < s.size(); i++)
-		{
-			h = h * 31 + static_cast<int>(s[i]);
-		}
-		return h;
-	}
-
 	f64 Rigidbody::GetInvMass() const noexcept
 	{
 		return _invMass;
@@ -130,18 +107,41 @@ namespace physics
 	{
 		return _restitution;
 	}
+
 	f64 Rigidbody::GetStaticFriction() const noexcept
 	{
 		return _staticFriction;
 	}
+
 	geometry::Vector Rigidbody::GetVelocity() const noexcept
 	{
 		return _velocity;
 	}
+
+	bool Rigidbody::NotEquals(const Hashable& other) const noexcept
+	{
+		Rigidbody r;
+		try
+		{
+			r = dynamic_cast<const Rigidbody&>(other);
+		}
+		catch(const std::bad_cast& e)
+		{
+			return true;
+		}
+		return _mass != r.GetMass() || _usesGravity != r.UsesGravity() ||
+			_staticFriction != r.GetStaticFriction() ||
+			_dynamicFriction != r.GetDynamicFriction() ||
+			_restitution != r.GetRestitution() || _gravity != r.GetGravity() ||
+			_velocity != r.GetVelocity() || _drag != r.GetDrag() ||
+			CollisionObject::NotEquals((const CollisionObject&) r);
+	}
+
 	void Rigidbody::SetDrag(const geometry::Vector& d) noexcept
 	{
 		_drag = d;
 	}
+
 	void Rigidbody::SetDynamicFriction(f64 f) noexcept
 	{
 		_dynamicFriction = f;
