@@ -18,9 +18,23 @@ namespace geometry
 		return sqrt(dis);
 	}
 
+	f64 Calc::Distance(const Vector3& a, const Vector3& b)
+	{
+		f64 dis = (pow(b.x - a.x, 2) + pow(b.y - a.y, 2) + pow(b.z - a.z, 2));
+		if (dis < 0) {dis *= -1;}
+		return sqrt(dis);
+	}
+
 	f64 Calc::DistanceSquared(const Vector& a, const Vector& b)
 	{
 		f64 dis = (pow(b.x - a.x, 2) + pow(b.y - a.y, 2));
+		if (dis < 0) {dis *= -1;}
+		return dis;
+	}
+
+	f64 Calc::DistanceSquared(const Vector3& a, const Vector3& b)
+	{
+		f64 dis = (pow(b.x - a.x, 2) + pow(b.y - a.y, 2) + pow(b.z - a.z, 2));
 		if (dis < 0) {dis *= -1;}
 		return dis;
 	}

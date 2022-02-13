@@ -20,9 +20,7 @@ namespace physics
 	void Display::Draw(const Entity& e) noexcept
 	{
 		if (_window.isOpen())
-		{
 			_window.draw(e.GetSprite());
-		}
 	}
 
 	void Display::Draw(const sf::Drawable& d) noexcept
@@ -90,5 +88,10 @@ namespace physics
 		_window.display();
 		if (shouldClear)
 			_window.clear();
+	}
+
+	bool Display::WindowIsOpen() const noexcept
+	{
+		return _window.isOpen();
 	}
 }

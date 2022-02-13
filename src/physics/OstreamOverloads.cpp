@@ -19,9 +19,9 @@ namespace physics
 		return os << t.scale;
 	}
 
-	std::ostream& operator<<(std::ostream& os, const geometry::Mat22& m)
+	std::ostream& operator<<(std::ostream& os, const geometry::Matrix22& m)
 	{
-		return os << "{" << m.m01 << ", " << m.m01 << ", " << m.m10 << ", " << m.m11 << "}";
+		return os << "|" << m.a << " " << m.b << "|\n|" << m.c << " " << m.d << "|";
 	}
 
 	std::ostream& operator<<(std::ostream& os, const PolygonCollider& p)

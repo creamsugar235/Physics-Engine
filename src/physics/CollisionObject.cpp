@@ -1,5 +1,6 @@
 #include "../include/physics/Collision.hpp"
 #include "../include/physics/CollisionObject.hpp"
+#include <iostream>
 namespace physics
 {
 	CollisionObject::CollisionObject() noexcept
@@ -7,7 +8,7 @@ namespace physics
 		_collider.reset(new BoxCollider());
 	}
 
-	CollisionObject::CollisionObject(const Transform& t, Collider& c, bool isTrigger) noexcept
+	CollisionObject::CollisionObject(const Transform& t, const Collider& c, bool isTrigger) noexcept
 	{
 		classCode = 0x05;
 		_transform = t;
@@ -60,13 +61,13 @@ namespace physics
 			return false;
 		}
 		// so no segfault happens
-		if (_collider)
+		if (_collider.get())
 		{
-			return _transform == c.GetTransform() && _lastTransform == c.GetLastTransform() &&
-				*_collider == c.GetCollider() && _isTrigger == c.IsTrigger();
+			return _transform.Equals(c.GetTransform()) && _lastTransform.Equals(c.GetLastTransform()) &&
+				_collider->Equals(c.GetCollider()) && (_isTrigger == c.IsTrigger());
 		}
-		return _transform == c.GetTransform() && _lastTransform == c.GetLastTransform() &&
-			_isTrigger == c.IsTrigger();
+		return _transform.Equals(c.GetTransform()) && _lastTransform.Equals(c.GetLastTransform()) && 
+			(_isTrigger == c.IsTrigger());
 	}
 
 	bool CollisionObject::IsTrigger() const noexcept
@@ -86,7 +87,7 @@ namespace physics
 
 	int CollisionObject::GetHash() const noexcept
 	{
-		std::string s = _transform.position.ToString() + _transform.scale.ToString();
+		std::string s = _transform.position.ToString();
 		s = s + std::to_string(_isDynamic) + std::to_string(_isTrigger);
 		int h = 0;
 		for (size_t i = 0; i < s.size(); i++)
@@ -96,7 +97,7 @@ namespace physics
 		return h;
 	}
 
-	geometry::Vector CollisionObject::GetPosition() const noexcept
+	const geometry::Vector& CollisionObject::GetPosition() const noexcept
 	{
 		return _transform.position;
 	}
@@ -106,7 +107,7 @@ namespace physics
 		return _onCollision;
 	}
 
-	geometry::Mat22 CollisionObject::GetRotation() const noexcept
+	const geometry::Matrix22& CollisionObject::GetRotation() const noexcept
 	{
 		return _transform.rotation;
 	}
@@ -133,16 +134,16 @@ namespace physics
 			return true;
 		}
 		// so no segfault happens
-		if (_collider)
+		if (_collider.get())
 		{
-			return _transform != c.GetTransform() || _lastTransform != c.GetLastTransform() ||
-				*_collider != c.GetCollider() || _isTrigger == c.IsTrigger();
+			return _transform.NotEquals(c.GetTransform()) || _lastTransform.NotEquals(c.GetLastTransform()) ||
+				_collider->NotEquals(c.GetCollider()) || (_isTrigger != c.IsTrigger());
 		}
-		return _transform != c.GetTransform() || _lastTransform != c.GetLastTransform() ||
-			_isTrigger != c.IsTrigger();
+		return _transform.NotEquals(c.GetTransform()) || _lastTransform.NotEquals(c.GetLastTransform()) ||
+			(_isTrigger != c.IsTrigger());
 	}
 
-	void CollisionObject::SetCollider(Collider& c) noexcept
+	void CollisionObject::SetCollider(const Collider& c) noexcept
 	{
 		_collider.reset(c.Clone());
 	}
@@ -167,7 +168,7 @@ namespace physics
 		_onCollision = func;
 	}
 
-	void CollisionObject::SetRotation(const geometry::Mat22& m) noexcept
+	void CollisionObject::SetRotation(const geometry::Matrix22& m) noexcept
 	{
 		_transform.rotation = m;
 	}

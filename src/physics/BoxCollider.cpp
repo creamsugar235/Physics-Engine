@@ -38,6 +38,11 @@ namespace physics
 		return new BoxCollider(*this);
 	}
 
+	geometry::Vector BoxCollider::GetCenterOfMass() const noexcept
+	{
+		return geometry::Vector(x + width / 2, y + height / 2);
+	}
+
 	BoxCollider& BoxCollider::operator=(const BoxCollider& b)
 	{
 		if (*this != b)
@@ -50,6 +55,16 @@ namespace physics
 			height = dimensions.y;
 		}
 		return *this;
+	}
+
+	geometry::Vector BoxCollider::Max() const noexcept
+	{
+		return pos + dimensions;
+	}
+
+	geometry::Vector BoxCollider::Min() const noexcept
+	{
+		return pos;
 	}
 
 	std::vector<unsigned char> BoxCollider::Serialize() const

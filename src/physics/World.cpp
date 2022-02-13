@@ -1,8 +1,43 @@
 #include "../include/physics/World.hpp"
 #include <iostream>
+#define MAXXVEL 100000
+#define MAXYVEL 100000
 
 namespace physics
 {
+
+	void FrictionSolver::Solve(std::vector<Collision>& collisions, f64 dt) noexcept
+	{
+		for (Collision& c: collisions)
+		{
+			if (!c.a->IsDynamic() || !c.b->IsDynamic()) continue;
+			Rigidbody* a = (Rigidbody*) c.a;
+			Rigidbody* b = (Rigidbody*) c.b;
+			geometry::Vector rv = b->GetVelocity() - a->GetVelocity();
+			geometry::Vector tangent = rv - rv.Dot(c.points.normal) * c.points.normal;
+			tangent.Normalize();
+			f64 velAlongNormal = rv.Dot(c.points.normal);
+			if (velAlongNormal > 0) continue;
+			f64 e = std::min(a->GetRestitution(), b->GetRestitution());
+			f64 j = -(1 + e) * velAlongNormal;
+			j /= a->GetInvMass() + b->GetInvMass();
+			f64 jt = -rv.Dot(tangent);
+			jt /= (a->GetInvMass() + b->GetInvMass());
+			f64 mu = sqrt(pow(a->GetStaticFriction(), 2) + pow(b->GetStaticFriction(), 2));
+			geometry::Vector frictionImpulse;
+			if (fabs(jt) < j * mu)
+				frictionImpulse = jt * tangent;
+			else
+			{
+				f64 dynFric = sqrt(pow(a->GetKineticFriction(), 2) + pow(b->GetKineticFriction(), 2));
+				frictionImpulse = -j * tangent * dynFric;
+			}
+			geometry::Vector aVel = a->GetVelocity() - b->GetInvMass() * frictionImpulse;
+			geometry::Vector bVel = a->GetVelocity() - b->GetInvMass() * frictionImpulse;
+			a->SetVelocity(a->GetVelocity() - b->GetInvMass() * frictionImpulse * dt);
+			b->SetVelocity(b->GetVelocity() - b->GetInvMass() * frictionImpulse * dt);
+		}
+	}
 	//bouncing
 	void ImpulseSolver:: Solve(std::vector<Collision>& collisions, f64 dt) noexcept
 	{
@@ -11,21 +46,9 @@ namespace physics
 			if (!c.a->IsDynamic() || !c.b->IsDynamic()) continue;
 			Rigidbody* a = (Rigidbody*) c.a;
 			Rigidbody* b = (Rigidbody*) c.b;
-			f64 e = std::min(a->GetRestitution(), b->GetRestitution());
-			geometry::Vector rv = b->GetVelocity() - a->GetVelocity();
-			f64 velAlongNormal = rv.Dot(c.points.normal);
-			if (velAlongNormal > 0) continue;
-			f64 j = -(1 + e) * velAlongNormal;
-			j /= a->GetInvMass() + b->GetInvMass();
-			double ratio = a->GetMass() / (a->GetMass() + b->GetMass());
-			geometry::Vector impulse = c.points.normal * j;
-			geometry::Vector aVel = a->GetVelocity();
-			geometry::Vector bVel = b->GetVelocity();
-			aVel -= ratio * impulse;
-			ratio = b->GetMass() / a->GetMass() + b->GetMass();
-			bVel += ratio * impulse;
-			a->SetVelocity(aVel * dt);
-			b->SetVelocity(bVel * dt);
+			f64 e = a->GetRestitution() > b->GetRestitution() ? a->GetRestitution() : b->GetRestitution();
+			a->ApplyForce(e * c.points.normal * (a->GetInvMass() / (a->GetInvMass() + b->GetInvMass())), c.points.b);
+			b->ApplyForce(e * -c.points.normal * (b->GetInvMass() / (b->GetInvMass() + a->GetInvMass())), c.points.a);
 		}
 	}
 
@@ -265,13 +288,9 @@ namespace physics
 	{
 		if (!r) {return;}
 		if (r->UsesGravity())
-		{
 			r->SetGravity(_gravity);
-		}
 		else
-		{
 			r->SetGravity(geometry::Vector(0, 0));
-		}
 		_objects.push_back(r);
 	}
 
@@ -282,9 +301,7 @@ namespace physics
 			if (!obj->IsDynamic()) continue;
 			Rigidbody* rigidbody = (Rigidbody*) obj;
 			if (!rigidbody->UsesGravity()) continue;
-			geometry::Vector grav = (rigidbody->GetGravity() / rigidbody->GetMass()) * dt;
-			grav.x = 0;
-			rigidbody->ApplyForce(grav);
+			rigidbody->ApplyForce(rigidbody->GetGravity());
 		}
 	}
 
@@ -294,8 +311,17 @@ namespace physics
 		{
 			if (!obj->IsDynamic()) continue;
 			Rigidbody* rigidbody = (Rigidbody*)obj;
-			geometry::Vector pos = geometry::Vector(rigidbody->GetPosition()) + rigidbody->GetVelocity() * dt;
-			rigidbody->SetPosition(pos);
+			geometry::Vector newPosition;
+			if (rigidbody->GetVelocity().x > MAXXVEL)
+			{
+				rigidbody->SetVelocity(geometry::Vector(MAXXVEL, rigidbody->GetVelocity().y));
+			}
+			if (rigidbody->GetVelocity().y > MAXYVEL)
+			{
+				rigidbody->SetVelocity(geometry::Vector(rigidbody->GetVelocity().x, MAXYVEL));
+			}
+			newPosition = rigidbody->GetVelocity() * rigidbody->GetInvMass() + rigidbody->GetPosition();
+			rigidbody->SetPosition(newPosition);
 			rigidbody->SetForce(geometry::Vector(0, 0));
 		}
 	}

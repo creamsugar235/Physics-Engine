@@ -2,20 +2,15 @@
 #include <iostream>
 
 using namespace geometry;
-
-Vector Projecrt(const Line& rhs, const Vector lhs) noexcept
+struct thing
 {
-	double angle = rhs.angle();	
-	angle += M_PI / 2;
-	angle = fmod(angle, 2 * M_PI);
-	
-}
+	geometry::Vector v;
+	f64& x = v.x;
+	f64& y = v.y;
+};
 
 int main()
 {
-	Vector v(167, 100);
-	Line l(Vector(100, 100), Vector(200, 100));
-	std::cout<<Calc::Distance(l.a, v)<<" "<<Calc::Distance(l.b, v)<<"\n";
-	std::cout<<l.length()<<"\n";
-	std::cout<<l.VectorIsOnLine(v);
+	std::cerr<<sizeof(thing)<<"\n";
+	return 0;
 }

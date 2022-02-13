@@ -6,7 +6,7 @@ namespace physics
 
 	int Hashable::Hash() const noexcept
 	{
-		const unsigned char* reader = (const unsigned char*)this;
+		std::vector<unsigned char>reader = GetBytes();
 		int h = 0;
 		for (unsigned i = 0; i < sizeof(this);i++)
 			h = h * 31 + static_cast<int>(reader[i]);
@@ -31,5 +31,13 @@ namespace physics
 	bool Hashable::NotEquals(const Hashable& other) const noexcept
 	{
 		return *this != other;
+	}
+
+	std::vector<unsigned char> Hashable::GetBytes() const noexcept
+	{
+		std::vector<unsigned char> v;
+		for (size_t i; i < sizeof(this); i++)
+			v.push_back(((const unsigned char *)this)[i]);
+		return v;
 	}
 }

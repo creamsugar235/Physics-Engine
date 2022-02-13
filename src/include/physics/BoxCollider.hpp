@@ -19,6 +19,9 @@ namespace physics
 		~BoxCollider() noexcept;
 		BoxCollider& operator=(const BoxCollider& b);
 		Collider* Clone() const noexcept override;
+		virtual geometry::Vector GetCenterOfMass() const noexcept override;
+		geometry::Vector Max() const noexcept override;
+		geometry::Vector Min() const noexcept override;
 		virtual CollisionPoints TestCollision(
 			const Transform& transform,
 			const Collider* collider,

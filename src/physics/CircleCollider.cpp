@@ -28,6 +28,21 @@ namespace physics
 		return new CircleCollider(*this);
 	}
 
+	geometry::Vector CircleCollider::GetCenterOfMass() const noexcept
+	{
+		return center;
+	}
+
+	geometry::Vector CircleCollider::Max() const noexcept
+	{
+		return center + radius;
+	}
+
+	geometry::Vector CircleCollider::Min() const noexcept
+	{
+		return center - radius;
+	}
+
 	std::vector<unsigned char> CircleCollider::Serialize() const
 	{
 		std::vector<unsigned char> v;

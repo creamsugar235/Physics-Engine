@@ -12,21 +12,19 @@ namespace algo
 		CollisionPoints c;
 		c.hasCollision = false;
 		if (!a || !b) {return c;}
-		f64 r = geometry::Calc::DistanceSquared(a->center + ta.position, b->center + tb.position);
+		geometry::Vector ACenter = ta.TransformVector(a->center);
+		geometry::Vector BCenter = tb.TransformVector(b->center);
+		f64 r = geometry::Calc::DistanceSquared(ta.TransformVector(ACenter), tb.TransformVector(BCenter));
 		// If the sum of their radii is greater than or equal to the distance between their centers
 		if (pow(a->radius + b->radius, 2) >= r)
 		{
-			geometry::Line l(a->center + ta.position, b->center + tb.position);
+			geometry::Line l(ta.TransformVector(ACenter), tb.TransformVector(BCenter));
 			c.a = l.GetVectorAlongLine(a->radius);
 			c.b = l.GetVectorAlongLine(b->radius, false);
 			c.depth = geometry::Calc::Distance(c.a, c.b);
 			c.normal = c.b - c.a;
 			c.normal.Normalize();
 			c.hasCollision = true;
-		}
-		else
-		{
-			c.hasCollision = false;
 		}
 		return c;
 	}
@@ -73,10 +71,16 @@ namespace algo
 		c = CircleInsidePolygon(a, ta, b, tb);
 		if (c.hasCollision)
 			return c;
-		std::vector<geometry::Line> lines;
-		for (unsigned i = 0; i < a->points.size(); i++)
+		std::vector<geometry::Vector> APoints;
+		for (const geometry::Vector& v: a->points)
 		{
-			lines.push_back(geometry::Line(a->points[i] + a->pos + ta.position, a->points[(i + 1) % a->points.size()] + a->pos + ta.position));
+			APoints.push_back(ta.TransformVector(v) + a->pos);
+		}
+		geometry::Vector BCenter = tb.TransformVector(b->center);
+		std::vector<geometry::Line> lines;
+		for (unsigned i = 0; i < APoints.size(); i++)
+		{
+			lines.push_back(geometry::Line(APoints[i], APoints[(i + 1) % APoints.size()]));
 		}
 		geometry::Vector closest = geometry::Infinity;
 		geometry::Line closestLine;
@@ -84,21 +88,21 @@ namespace algo
 		// project the circle's center onto every line in the PolygonCollider
 		for (const geometry::Line& l: lines)
 		{
-			geometry::Vector proj = geometry::Vector::Projection(b->center + tb.position, l);
-			if (geometry::Calc::DistanceSquared(proj, b->center + tb.position) < dis)
+			geometry::Vector proj = geometry::Vector::Projection(BCenter, l);
+			if (geometry::Calc::DistanceSquared(proj, BCenter) < dis)
 			{
 				// if the vector is on the line
 				if (l.VectorIsOnLine(proj))
 				{
 					closest = proj;
-					dis = geometry::Calc::DistanceSquared(proj, b->center + tb.position);
+					dis = geometry::Calc::DistanceSquared(proj, BCenter);
 					closestLine = l;
 				}
 			}
 		}
 		if (dis == std::numeric_limits<f64>::max())
 			return c;
-		if (geometry::Calc::DistanceSquared(closest, b->center + tb.position) > b->radius * b->radius)
+		if (geometry::Calc::DistanceSquared(closest, BCenter) > b->radius * b->radius)
 			return c;
 		auto VectorInCircle = [&] (const geometry::Vector& center, const f64& radius, const geometry::Vector point) {
 			f64 sqrDis = pow((center.x - point.x), 2) + pow((center.x - point.y), 2);
@@ -109,23 +113,23 @@ namespace algo
 			geometry::Vector farthest = geometry::Infinity;
 			f64 maxDis = std::numeric_limits<f64>::min();
 			bool allInCircle = false;
-			for (unsigned i = 0; i < a->points.size(); i++)
+			for (unsigned i = 0; i < APoints.size(); i++)
 			{
-				if (!VectorInCircle(b->center + tb.position, b->radius, a->points[i]))
+				if (!VectorInCircle(BCenter, b->radius, APoints[i]))
 					break;
-				f64 distance = geometry::Calc::DistanceSquared(a->points[i], b->center + tb.position);
+				f64 distance = geometry::Calc::DistanceSquared(APoints[i], BCenter);
 				if (distance > maxDis)
 				{
-					farthest = a->points[i];
+					farthest = APoints[i];
 					maxDis = distance;
 				}
-				if (i == a->points.size() - 1)
+				if (i == APoints.size() - 1)
 					allInCircle = true;
 			}
 			if (allInCircle)
 			{
 				c.a = closest;
-				geometry::Line tmp(closest, b->center + tb.position);
+				geometry::Line tmp(closest, BCenter);
 				c.b = tmp.GetVectorAlongLine(b->radius, false);
 				// reversed norm vector to push PolygonCollider out of circle				
 				c.normal = c.a - c.b;
@@ -136,9 +140,9 @@ namespace algo
 			}
 		}
 		//if the circle's center is inside the PolygonCollider
-		if (PolygonColliderVectorIsColliding(a, ta, b->center + tb.position))
+		if (PolygonColliderVectorIsColliding(a, ta, BCenter))
 		{
-			c.a = b->center + tb.position;
+			c.a = BCenter;
 			c.b = closest;
 			// reversed norm vector to push circle out of PolygonCollider
 			c.normal = c.a - c.b;
@@ -149,7 +153,7 @@ namespace algo
 		}
 		// else 
 		c.a = closest;
-		geometry::Line radius(closest, b->center + tb.position);
+		geometry::Line radius(closest, BCenter);
 		c.b = radius.GetVectorAlongLine(b->radius, false);
 		c.normal = c.b - c.a;
 		c.normal.Normalize();
@@ -197,20 +201,30 @@ namespace algo
 		c = PolygonInsidePolygon(a, ta, b, tb);
 		if (c.hasCollision)
 			return c;
+		std::vector<geometry::Vector> APoints;
+		std::vector<geometry::Vector> BPoints;
+		for (const geometry::Vector& v: a->points)
+		{
+			APoints.push_back(ta.TransformVector(v) + a->pos);
+		}
+		for (const geometry::Vector& v: b->points)
+		{
+			BPoints.push_back(ta.TransformVector(v) + b->pos);
+		}
 		//check every point in collider b if it intersects with a
 		std::vector<geometry::Vector> pointIntersectsB;
-		for (const geometry::Vector& p: b->points)
+		for (const geometry::Vector& p: BPoints)
 		{
-			if (PolygonColliderVectorIsColliding(a, ta, p + b->pos + tb.position))
+			if (PolygonColliderVectorIsColliding(a, ta, p))
 			{
-				pointIntersectsB.push_back(p + b->pos + tb.position);
+				pointIntersectsB.push_back(p);
 			}
 		}
 		if (!pointIntersectsB.size())
 			return c;
 		geometry::Vector closest = pointIntersectsB.at(0);
 		bool reached = false;
-		geometry::Vector centroidA = getCentroid(a->points) + a->pos + ta.position;
+		geometry::Vector centroidA = getCentroid(APoints);
 		for (const geometry::Vector& p: pointIntersectsB)
 		{
 			if (!reached)
@@ -222,18 +236,18 @@ namespace algo
 		}
 		c.b = closest;
 		std::vector<geometry::Vector> pointIntersectsA;
-		for (const geometry::Vector& p: a->points)
+		for (const geometry::Vector& p: APoints)
 		{
-			if (PolygonColliderVectorIsColliding(b, tb, p + a->pos + ta.position))
+			if (PolygonColliderVectorIsColliding(b, tb, p))
 			{
-				pointIntersectsA.push_back(p + a->pos + ta.position);
+				pointIntersectsA.push_back(p );
 			}
 		}
 		if (!pointIntersectsA.size())
 			return c;
 		closest = geometry::Origin;
 		reached = false;
-		geometry::Vector centroidB = getCentroid(b->points) + b->pos + tb.position;
+		geometry::Vector centroidB = getCentroid(BPoints);
 		for (const geometry::Vector& p: pointIntersectsA)
 		{
 			if (!reached)
@@ -360,26 +374,31 @@ namespace algo
 		c.hasCollision = false;
 		if (!a || !b) return c;
 		if (a->points.size() < 3) return c;
-		if (!PolygonColliderVectorIsColliding(a, ta, b->center + tb.position))
+		if (!PolygonColliderVectorIsColliding(a, ta, tb.TransformVector(b->center)))
 			return c;
-		geometry::Vector projections[a->points.size()];
+		std::vector<geometry::Vector> APoints;
+		for (const geometry::Vector& v: a->points)
+		{
+			APoints.push_back(ta.TransformVector(v) + a->pos);
+		}
+		geometry::Vector BCenter = tb.TransformVector(b->center);
+		geometry::Vector projections[APoints.size()];
 		geometry::Vector closest;
 		f64 distance = std::numeric_limits<f64>::infinity();
-		for (size_t i = 0; i < a->points.size(); i++)
+		for (size_t i = 0; i < APoints.size(); i++)
 		{
-			geometry::Line l(a->points[i] + a->pos + ta.position, 
-				a->points[(i + 1) % a->points.size()] + a->pos + ta.position);
-			projections[i] = geometry::Vector::Projection(b->center + tb.position, l);
-			if (geometry::Calc::DistanceSquared(projections[i], b->center + tb.position) < b->radius * b->radius)
+			geometry::Line l(APoints[i], APoints[(i + 1) % APoints.size()]);
+			projections[i] = geometry::Vector::Projection(BCenter, l);
+			if (geometry::Calc::DistanceSquared(projections[i], BCenter) < b->radius * b->radius)
 				return c;
-			if (geometry::Calc::DistanceSquared(projections[i], b->center + tb.position) < distance)
+			if (geometry::Calc::DistanceSquared(projections[i], BCenter) < distance)
 			{
 				closest = projections[i];
-				distance = geometry::Calc::DistanceSquared(closest, b->center + tb.position);
+				distance = geometry::Calc::DistanceSquared(closest, BCenter);
 			}
 		}
 		c.b = closest;
-		c.a = geometry::Line(b->center + tb.position, closest).GetVectorAlongLine(b->radius);
+		c.a = geometry::Line(BCenter, closest).GetVectorAlongLine(b->radius);
 		c.normal = c.a - c.b;
 		c.normal.Normalize();
 		c.hasCollision = true;
@@ -393,29 +412,40 @@ namespace algo
 	)
 	{
 		// farthest point from A's centroid
+		if (!a || !b) {return CollisionPoints();}
+		std::vector<geometry::Vector> APoints;
+		std::vector<geometry::Vector> BPoints;
+		for (const geometry::Vector& v: a->points)
+		{
+			APoints.push_back(ta.TransformVector(v) + a->pos);
+		}
+		for (const geometry::Vector& v: b->points)
+		{
+			BPoints.push_back(tb.TransformVector(v) + b->pos);
+		}
 		geometry::Vector farthest;
-		geometry::Vector centroidA = getCentroid(a->points) + a->pos + ta.position;
+		geometry::Vector centroidA = getCentroid(APoints);
 		f64 distance = std::numeric_limits<f64>::min();
 		bool allInPolygon = false;
-		for (size_t i = 0; i < a->points.size(); i++)
+		for (size_t i = 0; i < APoints.size(); i++)
 		{
-			if (!PolygonColliderVectorIsColliding(b, tb, a->points[i] + a->pos + ta.position))
+			if (!PolygonColliderVectorIsColliding(b, tb, APoints[i]))
 				break;
-			if (geometry::Calc::DistanceSquared(a->points[i] + a->pos + ta.position, centroidA) > distance)
+			if (geometry::Calc::DistanceSquared(APoints[i], centroidA) > distance)
 			{
-				farthest = a->points[i] + a->pos + ta.position;
-				distance = geometry::Calc::DistanceSquared(a->points[i] + a->pos + ta.position, centroidA);
+				farthest = APoints[i];
+				distance = geometry::Calc::DistanceSquared(APoints[i], centroidA);
 			}
-			if (i == a->points.size() - 1)
+			if (i == APoints.size() - 1)
 				allInPolygon = true;
 		}
 		if (allInPolygon)
 		{
 			geometry::Vector closest = geometry::Infinity;
 			f64 dis = closest.x; // infinity
-			for (size_t i = 0; i < b->points.size(); i++)
+			for (size_t i = 0; i < BPoints.size(); i++)
 			{
-				geometry::Line l(b->points[i] + b->pos + tb.position, b->points[(i + 1) % b->points.size()] + b->pos + tb.position);
+				geometry::Line l(BPoints[i], BPoints[(i + 1) % BPoints.size()]);
 				auto tmp = geometry::Vector::Projection(farthest, l);
 				if (geometry::Calc::DistanceSquared(tmp, farthest) < dis)
 				{
@@ -437,26 +467,26 @@ namespace algo
 		{
 			distance = std::numeric_limits<f64>::min();
 			// do not need to reset allInPolygon since it is already false
-			geometry::Vector centroidB = getCentroid(b->points) + b->pos + tb.position;
-			for (size_t i = 0; i < b->points.size(); i++)
+			geometry::Vector centroidB = getCentroid(BPoints);
+			for (size_t i = 0; i < BPoints.size(); i++)
 			{
-				if (!PolygonColliderVectorIsColliding(a, ta, b->points[i] + b->pos + tb.position))
+				if (!PolygonColliderVectorIsColliding(a, ta, BPoints[i]))
 					break;
-				if (geometry::Calc::DistanceSquared(b->points[i] + b->pos + tb.position, centroidB) > distance)
+				if (geometry::Calc::DistanceSquared(BPoints[i], centroidB) > distance)
 				{
-					farthest = b->points[i] + b->pos + tb.position;
-					distance = geometry::Calc::DistanceSquared(b->points[i] + b->pos + tb.position, centroidB);
+					farthest = BPoints[i];
+					distance = geometry::Calc::DistanceSquared(BPoints[i], centroidB);
 				}
-				if (i == b->points.size() - 1)
+				if (i == BPoints.size() - 1)
 					allInPolygon = true;
 			}
 			if (allInPolygon)
 			{
 				geometry::Vector closest = geometry::Infinity;
 				f64 dis = closest.x; // infinity
-				for (size_t i = 0; i < a->points.size(); i++)
+				for (size_t i = 0; i < APoints.size(); i++)
 				{
-					geometry::Line l(a->points[i] + a->pos + ta.position, a->points[(i + 1) % a->points.size()] + a->pos + ta.position);
+					geometry::Line l(APoints[i], APoints[(i + 1) % APoints.size()]);
 					auto tmp = geometry::Vector::Projection(farthest, l);
 					if (geometry::Calc::DistanceSquared(tmp, farthest) < dis)
 					{
@@ -487,12 +517,17 @@ namespace algo
 		* of intersections with the polygon is even, b is not inside if it is odd b is inside.
 		*/
 		if (a->points.size() <3)/* ily too <3*/ {return false;}
-		geometry::Vector max = (*max_element(a->points.begin(), a->points.end())) + a->pos + ta.position;
+		std::vector<geometry::Vector> APoints;
+		for (const geometry::Vector& v: a->points)
+		{
+			APoints.push_back(ta.TransformVector(v) + a->pos);
+		}
+		geometry::Vector max = (*max_element(APoints.begin(), APoints.end()));
 		geometry::Line line(b, geometry::Vector(max.x + (1 * max.x > b.x ? 1 : -1), b.y));
 		std::vector<geometry::Vector> listOfIntersections = std::vector<geometry::Vector>();
-		for (size_t i = 0; i < a->points.size(); i++)
+		for (size_t i = 0; i < APoints.size(); i++)
 		{
-			geometry::Line l(a->points[i] + a->pos + ta.position, a->points[(i + 1) % a->points.size()] + a->pos + ta.position);
+			geometry::Line l(APoints[i], APoints[(i + 1) % APoints.size()]);
 			if (geometry::Calc::Intersecting(l, line))
 			{
 				if (!listOfIntersections.size() || !std::count(listOfIntersections.begin(), listOfIntersections.end(), (geometry::Calc::VectorOfIntersect(l, line))))

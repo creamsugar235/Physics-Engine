@@ -55,11 +55,54 @@ namespace geometry
 			static Vector Projection(const Vector& vector, const Line& target) noexcept;
 			int Quadrant(const Vector& p) const noexcept;
 			void Rotate(const Vector& p, f64 angle) noexcept;
+			void Set(f64 newX, f64 newY) noexcept;
 			std::string ToString() const noexcept;
 			std::tuple<f64, f64> ToTuple() const noexcept;
 	};
 	Vector operator*(const f64& d, const Vector& v) noexcept;
 	Vector operator+(const f64& d, const Vector& v) noexcept;
+	class Vector3
+	{
+		public:
+			f64 x;
+			f64 y;
+			f64 z;
+			Vector3();
+			Vector3(f64 x, f64 y, f64 z);
+			f64 magnitude() const;
+			f64 magnitudeSquared() const;
+			void Normalize();
+			Vector3 Normalized() const;
+			f64 Dot(const Vector3& v) const;
+			Vector3 operator-() const noexcept;
+			Vector3 operator+() const noexcept;
+			bool operator==(const Vector3& v) const noexcept;
+			bool operator!=(const Vector3& v) const noexcept;
+			Vector3 operator-(const Vector3& v) const noexcept;
+			Vector3 operator-(const f64& d) const noexcept;
+			void operator-=(const Vector3& v) noexcept;
+			void operator-=(const f64& d) noexcept;
+			Vector3 operator+(const Vector3& v) const noexcept;
+			Vector3 operator+(const f64& d) const noexcept;
+			void operator+=(const Vector3& v) noexcept;
+			void operator+=(const f64& d) noexcept;
+			Vector3 operator/(const Vector3& v) const noexcept;
+			Vector3 operator/(const f64& d) const noexcept;
+			void operator/=(const Vector3& v) noexcept;
+			void operator/=(const f64& d) noexcept;
+			Vector3 operator*(const Vector3& v) const noexcept;
+			Vector3 operator*(const f64& d) const noexcept;
+			void operator*=(const Vector3& v) noexcept;
+			void operator*=(const f64& d) noexcept;
+			bool operator<(const Vector3& v) const noexcept;
+			bool operator>(const Vector3& v) const noexcept;
+			Vector3 operator()() const;
+			void Move(f64 offsetX, f64 offsetY, f64 offsetZ) noexcept;
+			static Vector3 Projection(const Vector3& lhs, const Vector3& rhs) noexcept;
+			std::string ToString() const noexcept;
+			std::tuple<f64, f64, f64> ToTuple() const noexcept;
+			void Set(f64 newX, f64 newY, f64 newZ) noexcept;
+	};
 #define Origin Vector(0, 0)
 #define Infinity Vector(std::numeric_limits<f64>::infinity(), std::numeric_limits<f64>::infinity())
 }

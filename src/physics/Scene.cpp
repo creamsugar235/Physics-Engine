@@ -3,16 +3,16 @@
 
 namespace physics
 {
-	Scene::PhysicsSmoothStepSystem::PhysicsSmoothStepSystem(Scene& s) noexcept
+	Scene::Smoother::Smoother(Scene& s) noexcept
 	{
 		_s = &s;
 	}
 
-	Scene::PhysicsSmoothStepSystem::PhysicsSmoothStepSystem() noexcept
+	Scene::Smoother::Smoother() noexcept
 	{
 	}
 
-	void Scene::PhysicsSmoothStepSystem::Step(f64 dt) noexcept
+	void Scene::Smoother::Update(f64 dt) noexcept
 	{
 		auto lerp = [&](geometry::Vector a, geometry::Vector b, f64 t){
 			auto clamp = [&](f64 d){
@@ -38,16 +38,15 @@ namespace physics
 		_accumulator += dt;
 	}
 
-	void Scene::PhysicsSmoothStepSystem::PhysicsUpdate() noexcept
+	void Scene::Smoother::PhysicsUpdate() noexcept
 	{
 		_accumulator = 0;
 	}
 
-	Scene::Scene(const geometry::Vector& gravity, f64 dt) noexcept
+	Scene::Scene(const geometry::Vector& gravity) noexcept
 	{
-		_smoother = PhysicsSmoothStepSystem(*this);
+		_smoother = Smoother(*this);
 		_gravity = gravity;
-		_dt = dt;
 		std::string name = "display";
 		display = new Display(300, 300, name);
 		sf::View v = display->GetWindow()->getDefaultView();
@@ -67,7 +66,7 @@ namespace physics
 
 	void Scene::AddEntity(Entity& e) noexcept
 	{
-		std::unique_ptr<Entity> ptr(e.Clone());
+		Entity* ptr = e.Clone();
 		if (ptr->GetCollisionObject().IsDynamic())
 		{
 			_world.AddRigidbody(dynamic_cast<Rigidbody*>(&ptr->GetCollisionObject()));
@@ -76,7 +75,7 @@ namespace physics
 		{
 			_world.AddObject(&ptr->GetCollisionObject());
 		}
-		_entities.emplace_back(ptr.release());
+		_entities.emplace_back(ptr);
 	}
 
 	void Scene::RemoveEntity(Entity& e) noexcept
@@ -94,8 +93,9 @@ namespace physics
 		}
 	}
 
-	void Scene::Step(f64 dt) noexcept
+	void Scene::Update(f64 dt) noexcept
 	{
+		// getting the frames per second
 		if (dt + _fpsCounter.total > 1000)
 		{
 			if (_fpsCounter.loopsPerSecond.size() > 60)
@@ -109,6 +109,7 @@ namespace physics
 			_fpsCounter.total += dt;
 			_fpsCounter.loops++;
 		}
+		// updating physics
 		if (physicsUpdateFrequency)
 		{
 			if (dt + _physicsUpdateCounter.total > 1000 / physicsUpdateFrequency)
@@ -127,10 +128,15 @@ namespace physics
 				_physicsUpdateCounter.total += dt;
 			}
 		}
-		else
+		//drawing all entities
+		if (display)
 		{
+			display->Update();
 			for (auto& ptr: _entities)
+			{
+				display->Draw(ptr->GetSprite());
 				ptr->Update();
+			}
 		}
 	}
 }

@@ -1,18 +1,22 @@
 #include "../include/physics/Entity.hpp"
+#include "../include/physics/Rigidbody.hpp"
 #include <iostream>
 #include <cstring>
 namespace physics
 {
+
+	Entity::Entity() noexcept
+	{
+		_name = "Entity";
+		_collider.reset(new Rigidbody());
+		_transform = Transform();
+	}
+
 	Entity::Entity(const std::string& name, CollisionObject& c, const Transform& t, const sf::Sprite& s) noexcept
 	{
 		_name = name;
-		_collider = c.Clone();
+		_collider.reset(c.Clone());
 		_sprite = s;
-		if (s.getTexture())
-		{
-			_texture = sf::Texture(*s.getTexture());
-		}
-		_sprite.setTexture(_texture);
 		_sprite.setPosition(_transform.position.x, _transform.position.y);
 		_transform = t;
 	}
@@ -20,20 +24,28 @@ namespace physics
 	Entity::Entity(const Entity& e) noexcept
 	{
 		_name = e.GetName();
-		_collider = e.GetCollisionObject().Clone();
+		_collider.reset(e.GetCollisionObject().Clone());
 		_sprite = e.GetSprite();
 		if (e.GetSprite().getTexture())
-		{
-			_texture = sf::Texture(*e.GetSprite().getTexture());
-		}
-		_sprite.setTexture(_texture);
-		_sprite.setPosition(_transform.position.x, _transform.position.y);
+			_sprite.setTexture(*e.GetSprite().getTexture());
 		_transform = e.GetTransform();
+		_sprite.setPosition(_transform.position.x, _transform.position.y);
 	}
 
 	Entity::~Entity()
 	{
-		delete _collider;
+	}
+
+	Entity& Entity::operator=(const Entity& other) noexcept
+	{
+		_name = other.GetName();
+		_collider.reset(other.GetCollisionObject().Clone());
+		_sprite = other.GetSprite();
+		if (other.GetSprite().getTexture())
+			_sprite.setTexture(*other.GetSprite().getTexture());
+		_transform = other.GetTransform();
+		_sprite.setPosition(_transform.position.x, _transform.position.y);
+		return *this;
 	}
 
 	Entity* Entity::Clone() const noexcept
@@ -52,8 +64,10 @@ namespace physics
 		{
 			return false;
 		}
-		return _name == e.GetName() && *_collider == e.GetCollisionObject() &&
-			_transform == e.GetTransform();
+		if (_collider)
+			return (_name == e.GetName()) && _collider->Equals(e.GetCollisionObject()) &&_transform.Equals(e.GetTransform());
+		else
+			return (_name == e.GetName()) && _transform.Equals(e.GetTransform());	
 	}
 
 	CollisionObject& Entity::GetCollisionObject() const noexcept
@@ -66,7 +80,7 @@ namespace physics
 		return _name;
 	}
 
-	sf::Sprite Entity::GetSprite() const noexcept
+	const sf::Sprite& Entity::GetSprite() const noexcept
 	{
 		return _sprite;
 	}
@@ -88,11 +102,11 @@ namespace physics
 		v.push_back(0xff);
 		v.push_back(0x00);
 		//totally safe ;)
-		const byte* iter=(const byte*)&_texture;
-		for (unsigned i = 0; i < sizeof(_texture); i++)
-		{
-			v.push_back(*(iter + i));
-		}
+		//const byte* iter=(const byte*)&_texture;
+		//for (unsigned i = 0; i < sizeof(_texture); i++)
+		//{
+			//v.push_back(*(iter + i));
+		//}
 		v.push_back(0xff);
 		v.push_back(0x00);
 		for (const char c: _name)
@@ -142,8 +156,7 @@ namespace physics
 
 	void Entity::SetCollisionObject(CollisionObject& c) noexcept
 	{
-		delete _collider;
-		_collider = c.Clone();
+		_collider.reset(c.Clone());
 	}
 
 	void Entity::SetName(const std::string& s) noexcept
@@ -164,6 +177,7 @@ namespace physics
 
 	void Entity::Update() noexcept
 	{
-		_transform.position = _collider->GetTransform().position;
+		_transform = _collider->GetTransform();
+		_sprite.setPosition(_transform.position.x, _transform.position.y);
 	}
 }

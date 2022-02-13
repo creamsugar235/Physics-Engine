@@ -10,21 +10,22 @@ namespace physics
 	class Entity : public serialization::Serializable, public Hashable
 	{
 		private:
-			CollisionObject* _collider;
+			std::unique_ptr<CollisionObject> _collider;
 			std::string _name;
 			sf::Sprite _sprite;
-			sf::Texture _texture;
 			Transform _transform;
 		public:
 			unsigned short ClassCode = 0x07;
+			Entity() noexcept;
 			Entity(const std::string& name, CollisionObject& c, const Transform& t, const sf::Sprite& s) noexcept;
 			Entity(const Entity& e) noexcept;
+			virtual Entity& operator=(const Entity& other) noexcept;
 			virtual ~Entity() noexcept;
 			virtual Entity* Clone() const noexcept;
 			virtual bool Equals(const Hashable& other) const noexcept override;
 			virtual CollisionObject& GetCollisionObject() const noexcept;
 			virtual std::string GetName() const noexcept;
-			virtual sf::Sprite GetSprite() const noexcept;
+			virtual const sf::Sprite& GetSprite() const noexcept;
 			virtual Transform GetTransform() const noexcept;
 			virtual bool NotEquals(const Hashable& other) const noexcept override;
 			virtual void SetCollisionObject(CollisionObject& c) noexcept;

@@ -27,5 +27,6 @@ namespace physics
 			void SetWidth(unsigned int w) noexcept;
 			void SetView(sf::View& view) noexcept;
 			void Update(const bool& shouldClear=true) noexcept;
+			bool WindowIsOpen() const noexcept;
 	};
 }

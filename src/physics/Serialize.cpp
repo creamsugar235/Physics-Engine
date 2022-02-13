@@ -85,8 +85,8 @@ namespace physics::serialization
 			}
 			t->position.x = posX;
 			t->position.y = posY;
-			t->scale.x = scaleX;
-			t->scale.y = scaleY;
+			//t->scale.x = scaleX;
+			//t->scale.y = scaleY;
 			//t->rotation = rot;
 			return t;
 		}
@@ -102,10 +102,10 @@ namespace physics::serialization
 				c = (reader)&t.position.y;
 				for (unsigned i = 0; i < sizeof(f64); i++)
 					v.push_back(c[i]);
-				c = (reader)&t.scale.x;
+				//c = (reader)&t.scale.x;
 				for (unsigned i = 0; i < sizeof(f64); i++)
 					v.push_back(c[i]);
-				c = (reader)&t.scale.y;
+				//c = (reader)&t.scale.y;
 				for (unsigned i = 0; i < sizeof(f64); i++)
 					v.push_back(c[i]);
 				c = (reader)&t.rotation;
@@ -123,10 +123,10 @@ namespace physics::serialization
 				c = (reader)&t.position.y;
 				for (unsigned i = 0; i < sizeof(f64); i++)
 					v.push_back(c[sizeof(f64) - 1 -i]);
-				c = (reader)&t.scale.x;
+				//c = (reader)&t.scale.x;
 				for (unsigned i = 0; i < sizeof(f64); i++)
 					v.push_back(c[sizeof(f64) - 1 - i]);
-				c = (reader)&t.scale.y;
+				//c = (reader)&t.scale.y;
 				for (unsigned i = 0; i < sizeof(f64); i++)
 					v.push_back(c[sizeof(f64) - 1 - i]);
 				c = (reader)&t.rotation;

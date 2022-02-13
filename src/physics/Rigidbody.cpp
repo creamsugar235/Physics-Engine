@@ -3,20 +3,32 @@
 
 namespace physics
 {
+	PhysicsMaterial::PhysicsMaterial() noexcept
+	{
+	}
+
+	PhysicsMaterial::PhysicsMaterial(f64 staticFriction, f64 kineticFriction, f64 restitution) noexcept
+	{
+		this->staticFriction = staticFriction;
+		this->kineticFriction = kineticFriction;
+		this->restitution = restitution;
+	}
+
+
 	Rigidbody::Rigidbody() noexcept: CollisionObject()
 	{
 	}
 
 	Rigidbody::Rigidbody(const Transform& t, Collider& c, bool isTrigger, f64 mass,
-		bool usesGravity, f64 staticFriction, f64 dynamicFriction,
+		bool usesGravity, f64 staticFriction, f64 kineticFriction,
 		f64 restitution) noexcept : CollisionObject(t, c, isTrigger)
 	{
 		_isDynamic = true;
 		_mass = mass;
 		_usesGravity = usesGravity;
-		_staticFriction = staticFriction;
-		_dynamicFriction = dynamicFriction;
-		_restitution = restitution;
+		_physicsMaterial.staticFriction = staticFriction;
+		_physicsMaterial.kineticFriction = kineticFriction;
+		_physicsMaterial.restitution = restitution;
 	}
 
 	Rigidbody::Rigidbody(const Rigidbody& r) noexcept
@@ -25,9 +37,9 @@ namespace physics
 		_isDynamic = true;
 		_mass = r.GetMass();
 		_usesGravity = r.UsesGravity();
-		_staticFriction = r.GetStaticFriction();
-		_dynamicFriction = r.GetDynamicFriction();
-		_restitution = r.GetRestitution();
+		_physicsMaterial.staticFriction = r.GetStaticFriction();
+		_physicsMaterial.kineticFriction = r.GetKineticFriction();
+		_physicsMaterial.restitution = r.GetRestitution();
 	}
 
 	Rigidbody::~Rigidbody() noexcept
@@ -38,15 +50,26 @@ namespace physics
 	{
 		_mass = other.GetMass();
 		_usesGravity = other.UsesGravity();
-		_staticFriction = other.GetStaticFriction();
-		_dynamicFriction = other.GetDynamicFriction();
-		_restitution = other.GetRestitution();
+		_physicsMaterial.staticFriction = other.GetStaticFriction();
+		_physicsMaterial.kineticFriction = other.GetKineticFriction();
+		_physicsMaterial.restitution = other.GetRestitution();
 		return *this;
 	}
 
-	void Rigidbody::ApplyForce(geometry::Vector f) noexcept
+	void Rigidbody::ApplyAngularForce(f64 angularVelocity) noexcept
 	{
-		_velocity += f;
+		_angularVelocity += angularVelocity;
+	}
+
+	void Rigidbody::ApplyForce(const geometry::Vector& force, const geometry::Vector& contactPoint) noexcept
+	{
+	 	_velocity += force;
+	}
+
+	void Rigidbody::ApplyImpulse(const geometry::Vector& impulse, const geometry::Vector& contactVec) noexcept
+	{
+		_velocity += _invMass * impulse;
+		_angularVelocity += _invInertia * contactVec.Cross(impulse);
 	}
 
 	CollisionObject* Rigidbody::Clone() const noexcept
@@ -65,22 +88,22 @@ namespace physics
 		{
 			return false;
 		}
-		return _mass == r.GetMass() && _usesGravity == r.UsesGravity() &&
-			_staticFriction == r.GetStaticFriction() &&
-			_dynamicFriction == r.GetDynamicFriction() &&
-			_restitution == r.GetRestitution() && _gravity == r.GetGravity() &&
-			_velocity == r.GetVelocity() && _drag == r.GetDrag() &&
+		return (_mass == r.GetMass()) && (_usesGravity == r.UsesGravity()) &&
+			(_physicsMaterial.staticFriction == r.GetStaticFriction()) &&
+			(_physicsMaterial.kineticFriction == r.GetKineticFriction()) &&
+			(_physicsMaterial.restitution == r.GetRestitution()) && (_gravity == r.GetGravity()) &&
+			(_velocity == r.GetVelocity()) && (_drag == r.GetDrag()) &&
 			CollisionObject::Equals((const CollisionObject&) r);
+	}
+
+	f64 Rigidbody::GetAngularVelocity() const noexcept
+	{
+		return _angularVelocity;
 	}
 
 	geometry::Vector Rigidbody::GetDrag() const noexcept
 	{
 		return _drag;
-	}
-
-	f64 Rigidbody::GetDynamicFriction() const noexcept
-	{
-		return _dynamicFriction;
 	}
 
 	geometry::Vector Rigidbody::GetForce() const noexcept
@@ -93,9 +116,24 @@ namespace physics
 		return _gravity;
 	}
 
+	f64 Rigidbody::GetInertia() const noexcept
+	{
+		return _inertia;
+	}
+
+	f64 Rigidbody::GetInvInertia() const noexcept
+	{
+		return _invInertia;
+	}
+
 	f64 Rigidbody::GetInvMass() const noexcept
 	{
 		return _invMass;
+	}
+
+	f64 Rigidbody::GetKineticFriction() const noexcept
+	{
+		return _physicsMaterial.kineticFriction;
 	}
 
 	f64 Rigidbody::GetMass() const noexcept
@@ -103,14 +141,24 @@ namespace physics
 		return _mass;
 	}
 
+	PhysicsMaterial Rigidbody::GetPhysicsMaterial() const noexcept
+	{
+		return _physicsMaterial;
+	}
+
 	f64 Rigidbody::GetRestitution() const noexcept
 	{
-		return _restitution;
+		return _physicsMaterial.restitution;
 	}
 
 	f64 Rigidbody::GetStaticFriction() const noexcept
 	{
-		return _staticFriction;
+		return _physicsMaterial.staticFriction;
+	}
+
+	f64 Rigidbody::GetTorque() const noexcept
+	{
+		return _torque;
 	}
 
 	geometry::Vector Rigidbody::GetVelocity() const noexcept
@@ -129,61 +177,85 @@ namespace physics
 		{
 			return true;
 		}
-		return _mass != r.GetMass() || _usesGravity != r.UsesGravity() ||
-			_staticFriction != r.GetStaticFriction() ||
-			_dynamicFriction != r.GetDynamicFriction() ||
-			_restitution != r.GetRestitution() || _gravity != r.GetGravity() ||
-			_velocity != r.GetVelocity() || _drag != r.GetDrag() ||
+		return (_mass != r.GetMass()) || (_usesGravity != r.UsesGravity()) ||
+			(_physicsMaterial.staticFriction != r.GetStaticFriction()) ||
+			(_physicsMaterial.kineticFriction != r.GetKineticFriction()) ||
+			(_physicsMaterial.restitution != r.GetRestitution()) || (_gravity != r.GetGravity()) ||
+			(_velocity != r.GetVelocity()) || (_drag != r.GetDrag()) ||
 			CollisionObject::NotEquals((const CollisionObject&) r);
 	}
 
-	void Rigidbody::SetDrag(const geometry::Vector& d) noexcept
+	void Rigidbody::SetAngularVelocity(f64 angularVelocity) noexcept
 	{
-		_drag = d;
+		_angularVelocity = angularVelocity;
 	}
 
-	void Rigidbody::SetDynamicFriction(f64 f) noexcept
+	void Rigidbody::SetDrag(const geometry::Vector& drag) noexcept
 	{
-		_dynamicFriction = f;
+		_drag = drag;
 	}
 
-	void Rigidbody::SetForce(const geometry::Vector& f) noexcept
+	void Rigidbody::SetForce(const geometry::Vector& force) noexcept
 	{
-		_force = f;
+		_force = force;
 	}
 
-	void Rigidbody::SetGravity(const geometry::Vector& g) noexcept
+	void Rigidbody::SetGravity(const geometry::Vector& grav) noexcept
 	{
-		_gravity = g;
+		_gravity = grav;
 	}
 
-	void Rigidbody::SetMass(f64 m) noexcept
+	void Rigidbody::SetInertia(f64 inertia) noexcept
 	{
-		_mass = m;
-		if (m)
-			_invMass = 1/m;
+		_inertia = inertia;
+		if (_inertia)
+			_invInertia = 1 / _inertia;
+		else
+			_invInertia = 0;
+	}
+
+	void Rigidbody::SetKineticFriction(f64 kineticFriction) noexcept
+	{
+		_physicsMaterial.kineticFriction = kineticFriction;
+	}
+
+	void Rigidbody::SetMass(f64 mass) noexcept
+	{
+		_mass = mass;
+		if (mass)
+			_invMass = 1 / mass;
 		else
 			_invMass = 0;
 	}
 
-	void Rigidbody::SetRestitution(f64 r) noexcept
+	void Rigidbody::SetPhysicsMaterial(const PhysicsMaterial& physicsMaterial) noexcept
 	{
-		_restitution = r;
+		_physicsMaterial = physicsMaterial;
 	}
 
-	void Rigidbody::SetStaticFriction(f64 f) noexcept
+	void Rigidbody::SetRestitution(f64 restitution) noexcept
 	{
-		_staticFriction = f;
+		_physicsMaterial.restitution = restitution;
 	}
 
-	void Rigidbody::SetUsesGravity(bool b) noexcept
+	void Rigidbody::SetStaticFriction(f64 staticFriction) noexcept
 	{
-		_usesGravity = b;
+		_physicsMaterial.staticFriction = staticFriction;
 	}
 
-	void Rigidbody::SetVelocity(const geometry::Vector& v) noexcept
+	void Rigidbody::SetTorque(f64 torque) noexcept
 	{
-		_velocity = v;
+		_torque = torque;
+	}
+
+	void Rigidbody::SetUsesGravity(bool usesGravity) noexcept
+	{
+		_usesGravity = usesGravity;
+	}
+
+	void Rigidbody::SetVelocity(const geometry::Vector& vel) noexcept
+	{
+		_velocity = vel;
 	}
 
 	bool Rigidbody::UsesGravity() const noexcept
@@ -192,7 +264,7 @@ namespace physics
 	}
 	std::vector<unsigned char> Rigidbody::Serialize() const
 	{
-		std::vector<unsigned char> v = _transform.Serialize();
+		/*std::vector<unsigned char> v = _transform.Serialize();
 		std::vector<unsigned char> tmp = _lastTransform.Serialize();
 		v.insert(v.end(), tmp.begin(), tmp.end());
 		v.push_back(_collider->classCode);
@@ -217,7 +289,7 @@ namespace physics
 				(reader)&_mass,
 				(reader)&_invMass,
 				(reader)&_staticFriction,
-				(reader)&_dynamicFriction,
+				(reader)&_kineticFriction,
 				(reader)&_restitution
 			};
 			for (unsigned i = 0; i < 11; i++)
@@ -251,7 +323,7 @@ namespace physics
 				(reader)&_mass,
 				(reader)&_invMass,
 				(reader)&_staticFriction,
-				(reader)&_dynamicFriction,
+				(reader)&_kineticFriction,
 				(reader)&_restitution
 			};
 			for (unsigned i = 0; i < 11; i++)
@@ -267,7 +339,7 @@ namespace physics
 			v.push_back(0xff);
 			v.push_back(0xff);
 		}
-		return v;
+		return v;*/
 	}
 	serialization::Serializable* Rigidbody::Deserialize(std::vector<unsigned char> v) const
 	{

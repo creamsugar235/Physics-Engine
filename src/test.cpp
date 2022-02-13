@@ -150,7 +150,5 @@ bool test::TestCollisionObject()
 
 bool test::TestRigidbody()
 {
-	//Rigidbody r(Transform(), PolygonCollider(Vector(0, 0), Vector(1, 1), Vector(2, 2), Vector(3, 3)), false, false);
-	
 	return true;
 }

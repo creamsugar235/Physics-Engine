@@ -3,123 +3,202 @@
 
 namespace geometry
 {
-	Point3D::Point3D()
+
+	Matrix22::Matrix22()
 	{
+		a = 1;
+		d = 1;
 	}
 
-	Point3D::Point3D(const Point3D& p)
+	Matrix22::Matrix22(f64 radians)
 	{
-		x = p.x;
-		y =  p.y;
-		z = p.z;
+		a = cos(radians);
+		b = -sin(radians);
+		c = sin(radians);
+		d = cos(radians);
 	}
 
-	Point3D::Point3D(f64 x, f64 y, f64 z)
+	Matrix22::Matrix22(f64 a, f64 b, f64 c, f64 d)
 	{
-		this->x = x;
-		this->y = y;
-		this->z = z;
+		this->a = a;
+		this->b = b;
+		this->c = c;
+		this->d = d;
 	}
 
-	void Point3D::Move(f64 offsetX, f64 offsetY, f64 offsetZ)
+	Matrix22& Matrix22::operator=(const Matrix22& other)
 	{
-		x += offsetX;
-		y += offsetY;
-		z += offsetZ;
+		this->a = other.a;
+		this->b = other.b;
+		this->c = other.c;
+		this->d = other.d;
+		return *this;
 	}
 
-
-	Quaternion::Quaternion()
+	Vector Matrix22::AxisX() const
 	{
-		x = 1;
-		y = 0;
-		z = 0;
-		w = 0;
+		return Vector(a, c);
 	}
 
-	Quaternion::Quaternion(const Point3D& axis, f64 angle)
+	Vector Matrix22::AxisY() const
 	{
-		w = cos(angle / 2);
-		x = axis.x * sin(angle / 2);
-		y = axis.y * sin(angle / 2);
-		z = axis.z * sin(angle / 2);
+		return Vector(b, d);
 	}
 
-	Quaternion::Quaternion(f64 x, f64 y, f64 z, f64 w)
+	Matrix22 Matrix22::Transpose() const
 	{
-		this->x = x;
-		this->y = y;
-		this->z = z;
-		this->w = w;
+		return Matrix22(a, c, b, d);
 	}
 
-	Quaternion Quaternion::operator*(const Quaternion& other) const noexcept
+	Vector Matrix22::operator*(const Vector& v) const
 	{
-		Quaternion q;
-		q.w = (w * other.w - x * other.x - y * other.y - z * other.z);
-		q.x = (w * other.x + x * other.w + y * other.z - z * other.y);
-		q.y = (w * other.y - x * other.z + y * other.w + z * other.x);
-		q.z = (w * other.z + x * other.y - y * other.x + z * other.w);
-		return q;
+		return Vector(a * v.x + b * v.y, c * v.x + d * v.y);
 	}
 
-	bool Quaternion::operator==(const Quaternion& other) const noexcept
+	Matrix22 Matrix22::operator*(const Matrix22& other) const
 	{
-		return w == other.w && x == other.x && y == other.y && z == other.z;
+		Matrix22 newMatrix;
+		Vector I = other.a * iHat;
+		Vector II = other.c * jHat;
+		Vector III = other.b * iHat;
+		Vector IV = other.d * jHat;
+		newMatrix.iHat = (I + II);
+		newMatrix.jHat = (III + IV);
+		return newMatrix;
 	}
 
-	bool Quaternion::operator!=(const Quaternion& other) const noexcept
+	bool Matrix22::operator==(const Matrix22& other) const
 	{
-		return( w == other.w && x == other.x && y == other.y && z == other.z);
+		return iHat == other.iHat && jHat == other.jHat;
 	}
 
-	Mat22::Mat22() {}
-
-	Mat22::Mat22(f64 radians)
+	bool Matrix22::operator!=(const Matrix22& other) const
 	{
-		f64 c = cos(radians);
-		f64 s = sin(radians);
-		m00 = c;
-		m01 = -s;
-		m10 = s;
-		m11 = c;
+		return jHat != other.iHat || jHat != other.jHat;
 	}
 
-	Mat22::Mat22(f64 a, f64 b, f64 c, f64 d)
+	void Matrix22::Set(f64 radians)
 	{
-		m00 = a;
-		m01 = b;
-		m10 = c;
-		m11 = d;
+		a = cos(radians);
+		b = -sin(radians);
+		c = sin(radians);
+		d = cos(radians);
 	}
 
-	Vector Mat22::AxisX() const
+	void Matrix22::Set(f64 a, f64 b, f64 c, f64 d)
 	{
-		return Vector(m00, m01);
+		this->a = a;
+		this->b = b;
+		this->c = c;
+		this->d = d;
 	}
 
-	Vector Mat22::AxisY() const
+	Matrix33::Matrix33()
 	{
-		return Vector(m01, m11);
+		a = 1;
+		e = 1;
+		i = 1;
 	}
 
-	Mat22 Mat22::Transpose() const
+	Matrix33::Matrix33(const Matrix22& mat22)
 	{
-		return Mat22(m00, m10, m01, m11);
+		a = mat22.a;
+		b = mat22.b;
+		d = mat22.c;
+		e = mat22.d;
+		c = 1, f = 1, g = 0, h = 0, i = 1;
 	}
 
-	Vector Mat22::operator*(const Vector& v) const
+	Matrix33::Matrix33(const Matrix33& mat33)
 	{
-		return Vector(m00 * v.x + m01 * v.y, m10 * v.x + m11 * v.y);
+		iHat = mat33.iHat;
+		jHat = mat33.jHat;
+		kHat = mat33.kHat;
 	}
 
-	bool Mat22::operator==(const Mat22& other) const
+	Matrix33::Matrix33(const f64& a, const f64& d, const f64& g, const f64& b, const f64& e, const f64& h, const f64& c, const f64& f, const f64& i)
 	{
-		return xCol == other.xCol && yCol == other.yCol;
+		this->a = a;
+		this->d = d;
+		this->g = g;
+		this->b = b;
+		this->e = e;
+		this->h = h;
+		this->c = c;
+		this->f = f;
+		this->i = i;
 	}
 
-	bool Mat22::operator!=(const Mat22& other) const
+	Matrix33::Matrix33(const Vector3& iHat, const Vector3& jHat, const Vector3& kHat)
 	{
-		return xCol != other.xCol || yCol != other.yCol;
+		this->iHat = iHat;
+		this->jHat = jHat;
+		this->kHat = kHat;
+	}
+
+	Matrix33& Matrix33::operator=(const Matrix33& other)
+	{
+		this->iHat = other.iHat;
+		this->jHat = other.jHat;
+		this->kHat = other.kHat;
+		return *this;
+	}
+
+	Vector3 Matrix33::AxisX() const
+	{
+		return iHat;
+	}
+
+	Vector3 Matrix33::AxisY() const
+	{
+		return jHat;
+	}
+
+	Vector3 Matrix33::AxisZ() const
+	{
+		return kHat;
+	}
+
+	Matrix33 Matrix33::Transpose() const
+	{
+		return Matrix33(a, b, c, d, e, f, g, h, i);	
+	}
+
+	bool Matrix33::operator==(const Matrix33& other) const
+	{
+		return iHat == other.iHat && jHat == other.jHat && kHat == other.kHat;
+	}
+
+	bool Matrix33::operator!=(const Matrix33& other) const
+	{
+		return iHat != other.iHat || jHat != other.jHat || kHat != other.kHat;
+	}
+
+	Vector3 Matrix33::operator*(const Vector3& other) const
+	{
+		return Vector3(
+			a * other.x + b * other.y + c * other.z,
+			d * other.x + e * other.y + f * other.z,
+			g * other.x + h * other.y + i * other.z
+		);
+	}
+
+	Matrix33 Matrix33::operator*(const Matrix33& other) const
+	{
+		Matrix33 newMatrix;
+		Vector3 vecs[9];
+		vecs[0] = iHat * other.a;
+		vecs[1] = jHat * other.b;
+		vecs[2] = kHat * other.c;
+		vecs[3] = iHat * other.d;
+		vecs[4] = jHat * other.e;
+		vecs[5] = kHat * other.f;
+		vecs[6] = iHat * other.g;
+		vecs[7] = jHat * other.h;
+		vecs[8] = kHat * other.i;
+		newMatrix.iHat = vecs[0] + vecs[3] + vecs[6];
+		newMatrix.jHat = vecs[1] + vecs[4] + vecs[7];
+		newMatrix.kHat = vecs[2] + vecs[5] + vecs[8];
+		return newMatrix;
 	}
 }

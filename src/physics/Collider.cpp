@@ -13,10 +13,10 @@ namespace physics
 			c = (reader)&position.y;
 			for (unsigned i = 0; i < sizeof(f64); i++)
 				v.push_back(c[i]);
-			c = (reader)&scale.x;
-			for (unsigned i = 0; i < sizeof(f64); i++)
-				v.push_back(c[i]);
-			c = (reader)&scale.y;
+			// c = (reader)&scale.x;
+			// for (unsigned i = 0; i < sizeof(f64); i++)
+			// 	v.push_back(c[i]);
+			// c = (reader)&scale.y;
 			for (unsigned i = 0; i < sizeof(f64); i++)
 				v.push_back(c[i]);
 			c = (reader)&rotation;
@@ -34,10 +34,10 @@ namespace physics
 			c = (reader)&position.y;
 			for (unsigned i = 0; i < sizeof(f64); i++)
 				v.push_back(c[sizeof(f64) - 1 -i]);
-			c = (reader)&scale.x;
+			//c = (reader)&scale.x;
 			for (unsigned i = 0; i < sizeof(f64); i++)
 				v.push_back(c[sizeof(f64) - 1 - i]);
-			c = (reader)&scale.y;
+			//c = (reader)&scale.y;
 			for (unsigned i = 0; i < sizeof(f64); i++)
 				v.push_back(c[sizeof(f64) - 1 - i]);
 			c = (reader)&rotation;
@@ -67,7 +67,7 @@ namespace physics
 		f64 posY = 0;
 		f64 scaleX = 0;
 		f64 scaleY = 0;
-		geometry::Quaternion rot;
+		//geometry::Quaternion rot;
 		if (BIG_ENDIAN)
 		{
 			writer c = (writer )&posX;
@@ -94,12 +94,12 @@ namespace physics
 				c[i] = *iter;
 				iter++;
 			}
-			c = (writer)&rot;
-			for (unsigned i = 0; i < sizeof(geometry::Quaternion); i++)
-			{
-				c[i] = *iter;
-				iter++;
-			}
+			// c = (writer)&rot;
+			// for (unsigned i = 0; i < sizeof(geometry::Quaternion); i++)
+			// {
+			// 	c[i] = *iter;
+			// 	iter++;
+			// }
 		}
 		else
 		{
@@ -127,17 +127,17 @@ namespace physics
 				c[sizeof(f64) - 1- i] = *iter;
 				iter++;
 			}
-			c = (writer)&rot;
-			for (unsigned i = 0; i < sizeof(geometry::Quaternion); i++)
-			{
-				c[sizeof(geometry::Quaternion) - 1 - i] = *iter;
-				iter++;
-			}
+			// c = (writer)&rot;
+			// for (unsigned i = 0; i < sizeof(geometry::Quaternion); i++)
+			// {
+			// 	c[sizeof(geometry::Quaternion) - 1 - i] = *iter;
+			// 	iter++;
+			// }
 		}
 		t->position.x = posX;
 		t->position.y = posY;
-		t->scale.x = scaleX;
-		t->scale.y = scaleY;
+		//t->scale.x = scaleX;
+		//t->scale.y = scaleY;
 		//t->rotation = rot;
 		return t;
 	}
