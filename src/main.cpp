@@ -1,3 +1,4 @@
+
 #include "include/physics/Scene.hpp"
 #include "include/SFML/Main.hpp"
 #include "physics/main.hpp"
@@ -18,6 +19,8 @@ int main()
 	Transform tmp;
 	tmp.position.Set(20, 50);	
 	Rigidbody rb;
+	rb.SetMass(2);
+	rb.SetRestitution(1);
 	rb.SetTransform(tmp);
 	rb.SetUsesGravity(0);
 	rb.SetCollider(BoxCollider(Vector(0, 0), Vector(50, 50)));
@@ -27,12 +30,10 @@ int main()
 	e.Update();
 	s.AddEntity(e);
 	Entity e2;
-	tmp.position.Set(20, 100);
+	tmp.position.Set(100, 60);
 	rb.SetMass(1);
 	rb.SetCollider(BoxCollider(Vector(0, 0), Vector(10, 10)));
 	rb.SetTransform(tmp);
-	rb.SetUsesGravity(true);
-	rb.SetGravity(Vector(0, -9.81).Normalized());
 	sf::Texture circ;
 	sprite.setTextureRect(sf::IntRect(1, 1, 10, 10));
 	//sprite.setColor(sf::Color::Blue);
@@ -41,6 +42,8 @@ int main()
 	e2.Update();
 	s.AddEntity(e2);
 	s.physicsUpdateFrequency = 1000;
+	rb.ApplyForce(Vector(-5.0, 0));
+	((Rigidbody&)s.GetEntities()[1]->GetCollisionObject()).ApplyForce(Vector(-.5, 0));
 	while (s.display->WindowIsOpen())
 	{
 		Time::Tick();

@@ -173,11 +173,13 @@ namespace physics
 	{
 		_transform = t;
 		_sprite.setPosition(t.position.x, t.position.y);
+		_sprite.setRotation(acos(_transform.rotation.a));
 	}
 
 	void Entity::Update() noexcept
 	{
 		_transform = _collider->GetTransform();
 		_sprite.setPosition(_transform.position.x, _transform.position.y);
+		_sprite.setRotation(acos(_transform.rotation.a));
 	}
 }

@@ -1,4 +1,5 @@
 #include "../include/physics/World.hpp"
+#include "../include/physics/OstreamOverloads.hpp"
 #include <iostream>
 #define MAXXVEL 100000
 #define MAXYVEL 100000
@@ -34,8 +35,8 @@ namespace physics
 			}
 			geometry::Vector aVel = a->GetVelocity() - b->GetInvMass() * frictionImpulse;
 			geometry::Vector bVel = a->GetVelocity() - b->GetInvMass() * frictionImpulse;
-			a->SetVelocity(a->GetVelocity() - b->GetInvMass() * frictionImpulse * dt);
-			b->SetVelocity(b->GetVelocity() - b->GetInvMass() * frictionImpulse * dt);
+			a->SetVelocity(a->GetVelocity() - b->GetInvMass() * frictionImpulse);
+			b->SetVelocity(b->GetVelocity() - a->GetInvMass() * frictionImpulse);
 		}
 	}
 	//bouncing
@@ -47,8 +48,8 @@ namespace physics
 			Rigidbody* a = (Rigidbody*) c.a;
 			Rigidbody* b = (Rigidbody*) c.b;
 			f64 e = a->GetRestitution() > b->GetRestitution() ? a->GetRestitution() : b->GetRestitution();
-			a->ApplyForce(e * c.points.normal * (a->GetInvMass() / (a->GetInvMass() + b->GetInvMass())), c.points.b);
-			b->ApplyForce(e * -c.points.normal * (b->GetInvMass() / (b->GetInvMass() + a->GetInvMass())), c.points.a);
+			a->ApplyForce(e * -c.points.normal * c.points.depth * (b->GetMass() / (a->GetMass() + b->GetMass())), c.points.b);
+			b->ApplyForce(e * c.points.normal * c.points.depth * (a->GetMass() / (a->GetMass() + b->GetMass())), c.points.a);
 		}
 	}
 
@@ -221,13 +222,11 @@ namespace physics
 				delete clone;
 				if (SquareOverLaps(BoundingBoxA, BoundingBoxB))
 				{
-					std::cerr<<"OMG WE TOUCHED?\n";
 					CollisionPoints points = a->GetCollider().TestCollision(
 						a->GetTransform(), &b->GetCollider(), b->GetTransform()
 					);
 					if (points.hasCollision)
 					{
-						std::cerr<<"WE DIDDD!!\n";
 						Collision c;
 						c.a = a;
 						c.b = b;
@@ -335,5 +334,8 @@ namespace physics
 
 	DynamicsWorld::DynamicsWorld() noexcept
 	{
+		_solvers.push_back(new ImpulseSolver());
+		_solvers.push_back(new FrictionSolver());
+		//_solvers.push_back(new PositionalCorrectionSolver());
 	}
 }
